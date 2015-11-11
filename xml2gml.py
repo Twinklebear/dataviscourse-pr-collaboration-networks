@@ -247,12 +247,10 @@ def XMLParser(filename):
             edges.append([authorkey, hashkey_journal])
             edges.append([authorkey, hashkey_title])
             
-            print "about to enter author-author edge loop"
             for collaborator in data.authors:
                 if collaborator is author:
                     continue
             
-                print "adding author-author edge"
                 collaboratorkey= hashString(collaborator)
                 edges.append([authorkey, collaboratorkey])
             
