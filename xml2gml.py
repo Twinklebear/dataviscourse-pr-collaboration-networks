@@ -42,12 +42,16 @@ def saveEdges2Json():
         json.dump(edges, f)
     return True;
 
-def save2GML():
+def save2GML(make_collaboration_graph= False):
     f = open(GML, 'w')
     f.write("graph" + '\n')
     f.write("[" + '\n')
     for n in nodes:
         n = nodes[n]
+        if make_collaboration_graph and n.type!= 1:
+            continue
+        
+        
         f.write('  node' + '\n')
         f.write('  [' + '\n')
         if n.type == 1:
@@ -65,6 +69,13 @@ def save2GML():
             f.write('    title \"'+str(n.title.encode('ascii',errors='ignore')).replace("\"", "\'") + '\"\n')
         f.write('  ]' + '\n')
     for e in edges:
+        if make_collaboration_graph:
+            if nodes[e[0]].type!= 1 or nodes[e[1]].type!= 1:
+                continue
+        else:
+            if nodes[e[0]].type== 1 and nodes[e[1]].type== 1:
+                continue
+        
         f.write('  edge' + '\n')
         f.write('  [' + '\n')
         f.write('    source ' + str(e[0]) + '\n')
@@ -180,6 +191,15 @@ class JournalXML2GML():
                     nodes[authorkey] = Author(author)
                 edges.append([authorkey, hashkey_journal])
                 edges.append([authorkey, hashkey_title])
+                
+                for collaborator in self.authors:
+                    if collaborator is author:
+                        continue
+                
+                    collaboratorkey= hashString(collaborator)
+                    edges.append([authorkey, collaboratorkey])
+                  
+                
             if hashkey_title not in nodes:
                 nodes[hashkey_title] = Article(self.title, self.year, self.url)
             if hashkey_journal not in nodes:
@@ -226,6 +246,16 @@ def XMLParser(filename):
                 nodes[authorkey] = Author(author)
             edges.append([authorkey, hashkey_journal])
             edges.append([authorkey, hashkey_title])
+            
+            print "about to enter author-author edge loop"
+            for collaborator in data.authors:
+                if collaborator is author:
+                    continue
+            
+                print "adding author-author edge"
+                collaboratorkey= hashString(collaborator)
+                edges.append([authorkey, collaboratorkey])
+            
         if hashkey_title not in nodes:
             nodes[hashkey_title] = Article(data.title, data.year, data.url)
         if hashkey_journal not in nodes:
@@ -247,8 +277,12 @@ def cleanupTxtFile(filename):
 if __name__ == "__main__":
     print "XML to GML "
     readfile = sys.argv[1]
-    # if(len(sys.argv) > 1):
-    #     GML = sys.argv[2]
+    
+    #we may consider adding a formal option functionality in the future
+    make_collaboration_graph= False
+    if(len(sys.argv) > 2 and sys.argv[2]== "-collaboration"):
+        make_collaboration_graph= True
+      
     if os.path.exists(readfile) is False:
         print "File doesn't exist."
     cleanupTxtFile(readfile)
@@ -266,4 +300,4 @@ if __name__ == "__main__":
     # saveNodes2Json()
     # saveEdges2Json()
     print "done"
-    save2GML()
+    save2GML(make_collaboration_graph)
