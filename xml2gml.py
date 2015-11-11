@@ -7,6 +7,7 @@ import sys
 import hashlib
 import json
 import os
+import re
 
 # try:
 #       from bs4 import BeautifulSoup
@@ -52,22 +53,22 @@ def save2GML():
         if n.type == 1:
             f.write('    id '+n.id + '\n')
             f.write('    type '+str(n.type) + '\n')
-            f.write('    name '+str(n.name) + '\n')
+            f.write('    name \"'+str(n.name) + '\"\n')
         elif n.type == 2:
             f.write('    id '+n.id + '\n')
             f.write('    type '+str(n.type) + '\n')
-            f.write('    title '+str(n.title.encode('ascii',errors='ignore')) + '\n')
+            f.write('    title \"'+str(n.title.encode('ascii',errors='ignore')).replace("\"", "\'") + '\"\n')
             f.write('    year '+str(n.year) + '\n')
         elif n.type == 3:
             f.write('    id '+n.id + '\n')
             f.write('    type '+str(n.type) + '\n')
-            f.write('    title '+str(n.title.encode('ascii',errors='ignore')) + '\n')
+            f.write('    title \"'+str(n.title.encode('ascii',errors='ignore')).replace("\"", "\'") + '\"\n')
         f.write('  ]' + '\n')
     for e in edges:
         f.write('  edge' + '\n')
         f.write('  [' + '\n')
-        f.write('    ' + str(e[0]) + '\n')
-        f.write('    ' +str(e[1]) + '\n')
+        f.write('    source ' + str(e[0]) + '\n')
+        f.write('    target ' +str(e[1]) + '\n')
         f.write('  ]' + '\n')
     f.write("]")
     f.close()
