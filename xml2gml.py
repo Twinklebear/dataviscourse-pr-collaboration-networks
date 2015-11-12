@@ -34,7 +34,7 @@ def saveEdges2Json():
         json.dump(edges, f)
     return True;
 
-def edgeTest(edge, make_collaboration_graph, journal_tags):
+def edgeTest(edge, make_collaboration_graph, journal_nicks):
     node_a_hash= edge[0][0]
     node_b_hash= edge[0][1]
     article_data= edge[1]
@@ -46,19 +46,21 @@ def edgeTest(edge, make_collaboration_graph, journal_tags):
         if nodes[node_a_hash].type== 1 and nodes[node_b_hash].type== 1:
             return False
           
-    if article_data.journaltag not in journal_tags:
+    if article_data.journalnick not in journal_nicks:
       return False
     
     return True
 
-def save2GML(make_collaboration_graph= False, journal_tags= None):
+def save2GML(make_collaboration_graph= False, journal_nicks= None):
+    print "exporting file..."
+  
     f = open(GML, 'w')
     f.write("graph" + '\n')
     f.write("[" + '\n')
     
     connected_node_hashes= set()
     for e in edges:
-        if not edgeTest(e, make_collaboration_graph, journal_tags):
+        if not edgeTest(e, make_collaboration_graph, journal_nicks):
             continue
         connected_node_hashes.add(e[0][0])
         connected_node_hashes.add(e[0][1])
@@ -86,7 +88,7 @@ def save2GML(make_collaboration_graph= False, journal_tags= None):
         f.write('  ]' + '\n')
     
     for e in edges:
-        if not edgeTest(e, make_collaboration_graph, journal_tags):
+        if not edgeTest(e, make_collaboration_graph, journal_nicks):
             continue
       
         node_a_hash= e[0][0]
@@ -154,13 +156,13 @@ class Journal():
         self.type = 3
         self.id = ""
         self.title = ""
-        self.journaltag= ""
+        self.journalnick= ""
         
-    def __init__(self, title, journaltag):
+    def __init__(self, title, journalnick):
         self.type = 3
         self.id = hashString(title)
         self.title = title
-        self.journaltag= journaltag
+        self.journalnick= journalnick
 
     def setTitle(self,title):
         self.title = title;
@@ -179,9 +181,9 @@ class JournalXML2GML():
         self.key = ""
 
     # Call when an element starts
-    def startElement(self, tag, attributes):
-        self.field = tag
-        if tag == "article":
+    def startElement(self, nick, attributes):
+        self.field = nick
+        if nick == "article":
             self.mdate = attributes["mdate"]
             self.key   = attributes["key"]
 
@@ -197,8 +199,8 @@ class JournalXML2GML():
         elif self.field == "year":
             self.year = content
 
-    def endElement(self, tag):
-        if tag == "article":
+    def endElement(self, nick):
+        if nick == "article":
             hashkey_title = hashString(self.title);
             hashkey_journal = hashString(self.journal);
             edges.append([hashkey_title, hashkey_journal])
@@ -228,11 +230,24 @@ class JournalXML2GML():
         self.mdate = ""
         self.key = ""
 
-def XMLParser(filename):
-    DOMTree = xml.dom.minidom.parse(filename)
+def XMLParser(file_string):
+    print "parsing file..."
+  
+    print "converting to dom tree..."
+    DOMTree = xml.dom.minidom.parseString(file_string)
+    print "finished converting."
+    
+    print "getting articles..."
     collection = DOMTree.documentElement
     articles = collection.getElementsByTagName("article")
+    print "finished getting articles."
+    
+    articles_processed= 0
     for article in articles:
+        articles_processed+= 1
+        if (articles_processed% 100)== 0:
+          print articles_processed, "articles processed,", str(articles_processed/ float(len(articles))), "%"
+      
         data = JournalXML2GML()
         if article.getElementsByTagName('title').length > 0:
             data.title = article.getElementsByTagName('title')[0].childNodes[0].data
@@ -248,8 +263,8 @@ def XMLParser(filename):
         data.mdate = article.getAttribute('mdate')
         data.key = article.getAttribute('key')
         
-        journal_tag_match= re.match("journals/([^/]*)/.*", data.key)
-        data.journaltag= journal_tag_match.group(1) if journal_tag_match is not None else None
+        journal_nick_match= re.match("journals/([^/]*)/.*", data.key)
+        data.journalnick= journal_nick_match.group(1) if journal_nick_match is not None else None
         
         hashkey_title = hashString(data.title);
         hashkey_journal = hashString(data.journal);
@@ -273,20 +288,103 @@ def XMLParser(filename):
         if hashkey_title not in nodes:
             nodes[hashkey_title] = Article(data.title, data.year, data.url)
         if hashkey_journal not in nodes:
-            nodes[hashkey_journal] = Journal(data.journal, data.journaltag)
+            nodes[hashkey_journal] = Journal(data.journal, data.journalnick)
+            
+    print "finished parsing file."
 
 def cleanupTxtFile(filename):
+    print "cleaning file..."
+  
     # Read in the file
     filedata = None
     with open(filename, 'r') as file :
-      filedata = file.read()
+        filedata = file.read()
 
     # Replace the target string
     filedata = filedata.replace('<i>', '').replace('</i>', '') #.replace('&#8482;','')
 
     # Write the file out again
     with open(filename, 'w') as file:
-      file.write(filedata)
+        file.write(filedata)
+      
+    print "finished cleaning file."
+    
+    return filedata
+
+#this is gonna be messy
+def filterFileString(filename, file_string, journal_nicks):
+    file_string = open(filename, "r")
+    filtered_file_string= ("<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n"
+                           "<!DOCTYPE dblp SYSTEM \"dblp.dtd\">\n"
+                           "<dblp>\n")
+    
+    if journal_nicks is None:
+        return file_string
+      
+    print "filtering file..."
+    
+    in_article= False
+    in_filtered_article= False
+    
+    lines_processed= 0
+    for line in file_string:
+        lines_processed+= 1
+        if (lines_processed% 100000)== 0:
+            print lines_processed, "lines processed."
+        if line== "\n":
+            continue
+            
+        just_exited_article= False
+        just_exited_filtered_article= False
+        
+      
+        if in_article:
+            match= re.search("</article>", line)
+            
+            if match is not None:
+                in_article= False
+                just_exited_article= True
+                
+                if in_filtered_article:
+                    in_filtered_article= False
+                    just_exited_filtered_article= True
+                
+        if not in_article:
+            match= re.search("<article.*>", line)
+            
+            if match is not None:
+                in_article= True
+                
+                if just_exited_article:
+                    match= re.search("</article>", line)
+                    line= line.replace(match.group(), "")
+                    
+                    if not just_exited_filtered_article:
+                        filtered_file_string+= "</article>\n"
+                    
+                just_exited_article= False
+                just_exited_filtered_article= False
+                  
+                match= re.search("key=\"journals/([^/]*)/.*\"", line)
+                if match is None:
+                    in_filtered_article= True
+                elif match.group(1) not in journal_nicks:
+                    in_filtered_article= True
+                    
+        if (in_article or just_exited_article) and (not in_filtered_article and not just_exited_filtered_article):
+            filtered_file_string+= line
+            
+    filtered_file_string+= "</dblp>\n"
+            
+            
+    print "finished filtering file."
+            
+    print "saving filtered file..."
+    filtered_file= open("filtered_xml.xml", "w")
+    filtered_file.write(filtered_file_string)
+    print "finished saving filtered file"
+    
+    return filtered_file_string
 
 if __name__ == "__main__":
     print "XML to GML "
@@ -294,7 +392,7 @@ if __name__ == "__main__":
     options= None
     arguments= None
     try:
-        options, arguments= getopt.getopt(sys.argv[1:], "", ["collaboration", "journal-tags="])
+        options, arguments= getopt.getopt(sys.argv[1:], "cf", ["collaboration", "journal-nicks="])
     except getopt.GetoptError as error:
         print "options entered are invalid"
         sys.exit()
@@ -305,19 +403,28 @@ if __name__ == "__main__":
     readfile = arguments[0]
     if os.path.exists(readfile) is False:
         print "File doesn't exist."
-    
+        
     make_collaboration_graph= False
-    journal_tags= None
+    journal_nicks= None
+    dont_filter_file= True
     
     for option, argument in options:
         if option== "--collaboration":
             make_collaboration_graph= True
-        elif option== "--journal-tags":
-            journal_tags= []
-            for journal_tag in argument.split(","):
-                journal_tags.append(journal_tag)
-    
-    cleanupTxtFile(readfile)
+        elif option== "--journal-nicks":
+            journal_nicks= argument.split(",")
+        elif option== "-c":
+            cleanupTxtFile(readfile)
+        elif option== "-f":
+            dont_filter_file= False
+            
+    file_string= None
+    if dont_filter_file:
+        file_string= open(readfile, "r").read()
+    else:
+        file_string= filterFileString(readfile, file_string, journal_nicks)
+          
+            
     # xml2gml(readfile, savefile)
     # create an XMLReader
     # parser = xml.sax.make_parser()
@@ -328,8 +435,8 @@ if __name__ == "__main__":
     # parser.setContentHandler( Handler )
     # #execute
     # parser.parse("./dblp_small.xml")
-    XMLParser(readfile)
+    XMLParser(file_string)
     # saveNodes2Json()
     # saveEdges2Json()
     print "done"
-    save2GML(make_collaboration_graph, journal_tags)
+    save2GML(make_collaboration_graph, journal_nicks)
