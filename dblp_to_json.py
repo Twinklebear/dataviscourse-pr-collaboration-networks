@@ -4,7 +4,9 @@ import sys
 import json
 import os
 import re
+import time
 import xml.etree.cElementTree as cET
+from scrape_affiliation import scrape_affiliation
 
 class DBLPEncoder(json.JSONEncoder):
     def default(self, o):
@@ -14,11 +16,15 @@ class Author():
     def __init__(self, name, id):
         self.name = name
         self.id = id
+        self.articles = []
+        self.affiliation = None
 
     def to_dict(self):
         return {
             "name": self.name,
-            "id": self.id
+            "id": self.id,
+            "articles": self.articles,
+            "affiliation": self.affiliation
         }
 
 class Article():
@@ -148,6 +154,7 @@ if __name__ == "__main__":
                             else:
                                 auth = authors[child.text]
                             article.authors.append(auth.id)
+                            auth.articles.append(article)
                             # If this author isn't already recorded for this journal, add their id
                             if not auth.id in journal.authors:
                                 journal.authors.append(auth.id)
@@ -175,8 +182,39 @@ if __name__ == "__main__":
     authors_array = [None] * len(authors)
     for _, author in authors.items():
         authors_array[author.id] = author
+    # Now go through and sort out everyone's affiliation, also use any cached information we might have in
+    # affiliation_cache.json
+    affiliation_cache = {}
+    if os.path.isfile("./data/affiliation_cache.json"):
+        with open("./data/affiliation_cache.json", "r") as fp:
+            affiliation_cache = json.load(fp)
+    for a in authors_array:
+        # If we've cached this author's affiliation information just re-use it
+        if a.affiliation == None and a.name in affiliation_cache:
+            a.affiliation = affiliation_cache[a.name]
+        # If we don't have affiliation information pick their first article and load it
+        elif a.affiliation == None and not a.name in affiliation_cache:
+            article = a.articles[0]
+            print("Scraping affiliations from {} for author #{}, {}".format(article.title, a.id, a.name))
+            affiliations = scrape_affiliation(article.doi)
+            if affiliations == None:
+                print("Skipping affiliation for unhandled DOI site")
+                affiliation_cache[a.name] = None
+            else:
+                # There are multiple authors per paper typically, so update everyone who needs
+                # an affiliation
+                for idx, affil in enumerate(affiliations):
+                    author = authors_array[article.authors[idx]]
+                    if not author.name in affiliation_cache:
+                        affiliation_cache[author.name] = affil
+                # Set this author's affiliation now that we've updated the cache
+                a.affiliation = affiliation_cache[a.name]
+                # Sleep a bit to not overload the server we're hitting
+                time.sleep(0.5)
 
     with open("./data/authors.json", "w") as fp:
         json.dump(authors_array, fp, cls=DBLPEncoder, indent=4)
-
+    # Also dump our updated affiliation cache
+    with open("./data/affiliation_cache.json", "w") as fp:
+        json.dump(affiliation_cache, fp, indent=4)
 
