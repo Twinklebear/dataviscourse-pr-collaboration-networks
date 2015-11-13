@@ -195,8 +195,9 @@ if __name__ == "__main__":
         # If we don't have affiliation information pick their first article and load it
         elif a.affiliation == None and not a.name in affiliation_cache:
             article = a.articles[0]
-            print("Scraping affiliations from {} for author #{}, {}".format(article.title, a.id, a.name))
+            print("Scraping affiliations from {} for author #{}, {}".format(article.doi, a.id, a.name))
             affiliations = scrape_affiliation(article.doi)
+            print("Affiliations = {}".format(affiliations))
             if affiliations == None:
                 print("Skipping affiliation for unhandled DOI site")
                 affiliation_cache[a.name] = None
