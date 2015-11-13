@@ -74,8 +74,6 @@ class Journal():
 def check_directories():
     if not os.path.isdir("./data/"):
         os.mkdir("./data")
-    if not os.path.isdir("./data/authors/"):
-        os.mkdir("./data/authors")
 
 if __name__ == "__main__":
     if len(sys.argv) < 3:
@@ -174,8 +172,11 @@ if __name__ == "__main__":
 
     # Save out the author information we've read in
     print("Saving out {} authors".format(len(authors)))
+    authors_array = [None] * len(authors)
     for _, author in authors.items():
-        with open("./data/authors/" + str(author.id) + ".json", "w") as fp:
-            json.dump(author, fp, cls=DBLPEncoder, indent=4)
+        authors_array[author.id] = author
+
+    with open("./data/authors.json", "w") as fp:
+        json.dump(authors_array, fp, cls=DBLPEncoder, indent=4)
 
 
