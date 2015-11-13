@@ -4,6 +4,8 @@ from lxml import html, etree
 def scrape_acm(page):
     tree = html.fromstring(page.content)
     author_affiliations = []
+    # The ACM author affiliations are stored in a kind of nasty table layout,
+    # best to view source or inspect element on their page for an explanation of this.
     authors = tree.xpath('//td/a[@title="Author Profile Page"]')
     for a in authors:
         affiliation = a.getparent().getnext().find("a/small")
@@ -27,6 +29,6 @@ def scrape_affiliation(doi):
     page = requests.get(doi)
     if page.url.startswith("http://dl.acm.org/"):
         return scrape_acm(page)
-    print("Error! Unhandled Journal Site {}".format(page.url))
+    print("Warning! Unhandled Journal Site {}".format(page.url))
     return None
 
