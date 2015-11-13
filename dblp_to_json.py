@@ -200,7 +200,8 @@ if __name__ == "__main__":
             print("Affiliations = {}".format(affiliations))
             if affiliations == None:
                 print("Skipping affiliation for unhandled DOI site")
-                affiliation_cache[a.name] = None
+                affiliation_cache[a.name] = "Unhandled"
+                a.affiliation = "Unhandled"
             else:
                 # There are multiple authors per paper typically, so update everyone who needs
                 # an affiliation
