@@ -204,8 +204,11 @@ if __name__ == "__main__":
             else:
                 # There are multiple authors per paper typically, so update everyone who needs
                 # an affiliation
-                for idx, affil in enumerate(affiliations):
-                    author = authors_array[article.authors[idx]]
+                for idx, auth in enumerate(article.authors):
+                    author = authors_array[auth]
+                    affil = "None"
+                    if idx < len(affiliations):
+                        affil = affiliations[idx]
                     if not author.name in affiliation_cache:
                         affiliation_cache[author.name] = affil
                 # Set this author's affiliation now that we've updated the cache

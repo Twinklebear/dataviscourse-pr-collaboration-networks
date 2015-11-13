@@ -12,7 +12,7 @@ def scrape_acm(page):
         # If we don't find it under a URL it's likely just a <small>
         if affiliation == None:
             affiliation = a.getparent().getnext().find("small")
-        if affiliation:
+        if affiliation != None:
             affiliation = affiliation.text
         else:
             affiliation = "None"
