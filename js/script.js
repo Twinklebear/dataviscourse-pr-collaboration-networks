@@ -512,7 +512,7 @@ function loadJson(){
 			authors = data['authors'];
 			visualizeit()
 			directedGraph()
-			bundleNodes()
+			// bundleNodes()
 		});
 }
 
