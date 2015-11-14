@@ -3,4 +3,5 @@
 *.dtd
 *.pyc
 data/
-
+data*
+.DS_Store
