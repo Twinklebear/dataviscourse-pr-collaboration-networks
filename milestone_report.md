@@ -2,9 +2,18 @@
 
 Authors: Kevin Wall, Mike Liu, Will Usher
 
-## Confirmation of Graph Structures
+## Analyzing Graphs
 
-TODO: Kevin
+One of the goals of the project is to communicate graph structure effectively, even when the graph contains dense subgraphs, or "hairballs". Therefore, essential to this goal is the capacity to find dense subgraphs. To this end, we researched existing solutions, and found an approximate algorithm whose time complexity is linear in the number of nodes and edges. We implemented this algorithm and ran it on a test graph, shown below.
+
+![graph](graph.png "Graph")
+
+The algorithm simply cuts away the least connected node over and over, keeping track of the resulting graph's density. With our test graph, it was immediately able to find the densest subgraph, but it had trouble finding the second densest subgraph, due to some of the nodes in the second densest subgraph having equal degree to nodes in the third densest subgraph. We added in a heuristic to break these ties, and this resulted in the algorithm finding the three colored sets of nodes above. 
+
+This algorithm alone will not solve our problems completely, but it will form the core of more sophisticated methods of finding clusters in graphs. As for what those will look like, it will become more clear when we start testing the algorithm on the collaboration networks we recently extracted.  
+
+The feasibility of finding these clusters (usefully) has been questioned, mainly because of the fact that dense subgraphs can occur simply because of papers having many authors. All of these authors would be connected to all other authors, creating a cluster, but one which is mostly uninformative. One way this problem might be mitigated is if the nodes in the graph have many parallel edges (meaning many collaborations between two authors). This would result in higher densities among authors who collaborate a lot vs many authors who collaborated once on a single paper. If this is not the case however, we could choose to limit ourselves to papers with some small number of maximum authors. Even barring these two possibilities, we believe it likely we can simply modify the algorithm to explicitly ignore such cases. 
+
 
 ## Initial D3 Visualization
 
