@@ -4,15 +4,66 @@
 	<title>Collaboration Networks</title>
 	<meta charset="utf-8">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
-</head>
-<body>
-<h3>CS6630 Project: Collaboration Networks</h3>
-<ul>
-<li>Kevin Wall</li>
-<li>Mike Liu</li>
-<li>Will Usher</li>
 
-<div id="main_view">
+</head>
+<style>
+
+.node {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+.link {
+  stroke: #999;
+  stroke-opacity: .6;
+}
+
+svg {
+  border: 1px solid #ccc;
+}
+body {
+  font: sans-serif;
+}
+circle.node {
+  fill: lightsteelblue;
+  stroke: #555;
+  stroke-width: 3px;
+}
+circle.leaf {
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+path.hull {
+  fill: lightsteelblue;
+  fill-opacity: 0.3;
+}
+line.link {
+  stroke: #333;
+  stroke-opacity: 0.5;
+  pointer-events: none;
+}
+
+</style>
+<body>
+
+<h3>CS6630 Project: Collaboration Networks</h3
+
+<div id="member_info">
+	members: Kevin Wall, Mike Liu, Will Usher
+</div>
+<hr>
+<div id="author_info">
+</div>
+
+<div id="convex_hulls">
+</div>
+
+<div id="author_info2">
+</div>
+<div id="force_directed">
+</div>
+
+<div id="bundle_nodes">
 </div>
 
 <script src="js/script.js"></script>
