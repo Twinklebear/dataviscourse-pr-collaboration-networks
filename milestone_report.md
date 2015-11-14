@@ -17,7 +17,9 @@ The feasibility of finding these clusters (usefully) has been questioned, mainly
 
 ## Initial D3 Visualization
 
-TODO: Mike
+Our challenge is how we can present the graph data in the way that is simple to understand and easy to make discoveries even if the graph is dense. We first used an open-source graph visualization software, Gephi, to test a small dataset for a proof of conecpt of using graph visualization and most of our results were successful. Next, We want to build a simple prototype to validate our ideas for the visualization. As we were thinking about ways to implementat the design that we mentioned in our project proposal, we came across a few D3 examples which have similar concepts as our design. The examples are [convex hulls](http://bl.ocks.org/donaldh/2920551), [force-directed graph](http://bl.ocks.org/mbostock/4062045), and [bundle nodes](http://bl.ocks.org/GerHobbelt/3071239). 
+
+We have implemented all three of them and used a small dataset from two journals to present the network graph of the authors in our intial prototype. We felt that the convex hulls presents the two groups of graph reall well. The force-directed graph shows the connectivities between nodes in a graph clearly. Last but not least, the bubdle nodes could help to solve the problem of visualizing a dense graph. We also added a detial functionality that if a node is clicked, the detail about the author would be displayed on top of interactive area. We felt that the prototype gives us a good insight on how we are going to implement our visualization project. We have not commited the data to our Github project repository due to the size of dataset from DBLP is huge. Therefore, we have host our demo on a server. Here is [the link to our prototype](http://www.sci.utah.edu/~mliu/datavis/)
 
 ## Parsing the DBLP Database & Scraping
 
