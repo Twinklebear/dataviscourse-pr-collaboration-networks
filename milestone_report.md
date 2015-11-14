@@ -6,7 +6,7 @@ Authors: Kevin Wall, Mike Liu, Will Usher
 
 One of the goals of the project is to communicate graph structure effectively, even when the graph contains dense subgraphs, or "hairballs". Therefore, essential to this goal is the capacity to find dense subgraphs. To this end, we researched existing solutions, and found an approximate algorithm whose time complexity is linear in the number of nodes and edges. We implemented this algorithm and ran it on a test graph, shown below.
 
-![graph](graph.png "Graph")
+![Simple graph used to test the densest subgraph algorithm we implemented](graph.png "Graph")
 
 The algorithm simply cuts away the least connected node over and over, keeping track of the resulting graph's density. With our test graph, it was immediately able to find the densest subgraph, but it had trouble finding the second densest subgraph, due to some of the nodes in the second densest subgraph having equal degree to nodes in the third densest subgraph. We added in a heuristic to break these ties, and this resulted in the algorithm finding the three colored sets of nodes above. 
 
