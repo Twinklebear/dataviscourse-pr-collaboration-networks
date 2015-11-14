@@ -5,7 +5,7 @@ Authors: Kevin Wall, Mike Liu, Will Usher
 # Project Milestone
 
 The milestone report is under [milestone\_report.pdf](milestone_report.pdf). Since our data is a bit too
-large to include in the repository you can see our running prototype at [TODO MIKE](TODO MIKE).
+large to include in the repository you can see our running prototype at [link](http://www.sci.utah.edu/~mliu/datavis/).
 
 # Documentation
 
