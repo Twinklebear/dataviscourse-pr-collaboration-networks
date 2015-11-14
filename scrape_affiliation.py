@@ -1,4 +1,5 @@
 import requests
+import re
 from lxml import html, etree
 
 def scrape_acm(page):
@@ -19,6 +20,18 @@ def scrape_acm(page):
         author_affiliations.append(affiliation)
     return author_affiliations
 
+# IEEE Actually has an API! So we use that to get author affilation information from them
+def scrape_ieee(doi_url):
+    match_doi = re.compile("http:\/\/.*doi[^\/]*\/(.+)")
+    doi = match_doi.match(doi_url)
+    if doi:
+        doi = doi.group(1)
+        page = requests.get("http://ieeexplore.ieee.org/gateway/ipsSearch.jsp?doi=" + doi)
+        tree = etree.fromstring(page.content)
+        authors = tree.xpath("//authors/text()")
+        affiliations = tree.xpath("//affiliations/text()")
+        return affiliations
+
 # Returns an array of the author affilations, ordered by the author appearance list on the paper
 # e.g. first author, second author, etc. This is done because we can't assume the names in the DBLP
 # database exactly match the names shown on the webpage.
@@ -29,6 +42,9 @@ def scrape_affiliation(doi):
     page = requests.get(doi)
     if page.url.startswith("http://dl.acm.org/"):
         return scrape_acm(page)
+    elif page.url.startswith("http://www.computer.org/") \
+            or page.url.startswith("http://ieeexplore.ieee.org/"):
+        return scrape_ieee(doi)
     print("Warning! Unhandled Journal Site {}".format(page.url))
     return None
 
