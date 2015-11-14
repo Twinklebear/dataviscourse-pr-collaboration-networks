@@ -18,6 +18,9 @@
   stroke-opacity: .6;
 }
 
+.interactive_window{
+  padding-bottom: 20px;
+}
 svg {
   border: 1px solid #ccc;
 }
@@ -52,18 +55,24 @@ line.link {
 	members: Kevin Wall, Mike Liu, Will Usher
 </div>
 <hr>
+<p>Click a node to see detail</p>
+<b>Convex Hulls</b>
 <div id="author_info">
 </div>
-
-<div id="convex_hulls">
+<div class="interactive_window" id="convex_hulls">
 </div>
 
+<b>Force-Directed Graph</b>
 <div id="author_info2">
 </div>
-<div id="force_directed">
+<div class="interactive_window" id="force_directed">
 </div>
 
-<div id="bundle_nodes">
+<b>Bundle Nodes</b>
+<p>Double-click a graph to see nodes in a graph</p>
+<div id="author_info3">
+</div>
+<div class="interactive_window" id="bundle_nodes">
 </div>
 
 <script src="js/script.js"></script>

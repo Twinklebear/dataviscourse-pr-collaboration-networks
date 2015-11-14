@@ -103,6 +103,33 @@ function displayAuthor2(d){
 	document.getElementById('author_info2').innerHTML = msg;
 }
 
+function displayAuthor3(d){
+	var author = authors[d]; 
+	var msg = "Author Name: " + author.name + newline;
+	for(var i = 0; i<author.articles.length; i++){
+		var article = author.articles[i];
+		msg+= "<a href="+ article.doi+ ">" + article.title + "</a>"+newline;
+		msg+= "year: " + article.year + newline;
+		if(article.authors.length>0){
+			if(article.authors.length>1){
+				msg+= "collaborators: ";
+				for(var j = 0; j<article.authors.length; j++){
+					if(article.authors[j] != d)
+						if(j<article.authors.length-1)
+							msg += authors[article.authors[j]].name + ", ";
+						else
+							msg += authors[article.authors[j]].name;
+				}
+				msg+= newline;
+			}else{
+				if(article.authors[0] != d)
+					msg += "collaborators: "+ authors[article.authors[j]].name+ newline;
+			}			
+		}
+	}
+	document.getElementById('author_info3').innerHTML = msg;
+}
+
 function visualizeit(){
 	var main_width = 960;
 	var main_height = 700;
@@ -128,7 +155,7 @@ function visualizeit(){
 		.attr("cx", function(d){return d.x; })
 		.attr("cy", function(d){return d.y; })
 		.attr("r", 8)
-		.style("fill", "blue")
+		.style("fill", groupFill)
 		.call(force.drag)
 		.on("click", function(d){ 
 			displayAuthor(d)
@@ -178,12 +205,12 @@ function directedGraph(){
 	var links = [];
 	for(var i = 0; i<authors.length; i++){
 		var author = authors[i];
-		if(author.articles.length>0){
-			for(var j = 0; j<author.articles.length; j++){
-				for(var k = 0; k<author.articles[j].authors.length; k++)
-					if(author.articles[j].authors[k] != i)
-						links.push({"source":i,"target":author.articles[j].authors[k], "value": i < journal1.num_authors ? 1 : 2})
-			}
+		for(var j = 0; j<author.articles.length; j++){
+			var article = author.articles[j];
+			for(var k = 0; k < article.authors.length; k++)
+				if(article.authors[k] != i){
+					links.push({"source":i,"target":article.authors[k], "value": i < journal1.num_authors ? 1 : 2})
+				}
 		}
 	}
 
@@ -375,20 +402,21 @@ function bundleNodes(){
 	for(var i = 0; i<authors.length; i++){
 		nodes.push({"name":authors[i].name, "group":i<journal1.num_authors? 1:2});
 	}
-	console.log(nodes);
+
 	data = {"nodes":[], "links":[]};
 	data.nodes = nodes;
 	var links = [];
 	for(var i = 0; i<authors.length; i++){
 		var author = authors[i];
-		if(author.articles.length>0){
-			for(var j = 0; j<author.articles.length; j++){
-				for(var k = 0; k<author.articles[j].authors.length; k++)
-					if(author.articles[j].authors[k] != i)
-						links.push({"source":i,"target":author.articles[j].authors[k], "value": i < journal1.num_authors ? 1 : 2})
-			}
+		for(var j = 0; j<author.articles.length; j++){
+			var article = author.articles[j];
+			for(var k = 0; k < article.authors.length; k++)
+				if(article.authors[k] != i){
+					links.push({"source":i,"target":article.authors[k], "value": i < journal1.num_authors ? 1 : 2})
+				}
 		}
 	}
+	
 	data.links = links;
 	for (var i=0; i<data.links.length; ++i) {
 		o = data.links[i];
@@ -426,8 +454,8 @@ function bundleNodes(){
 				// nodes of another group or other group node or between two group nodes.
 				//
 				// The latter was done to keep the single-link groups ('blue', rose, ...) close.
-				return 20 +
-				Math.min(20 * Math.min((n1.size || (n1.group != n2.group ? n1.group_data.size : 0)),
+				return 60 +
+				Math.min(30 * Math.min((n1.size || (n1.group != n2.group ? n1.group_data.size : 0)),
 					(n2.size || (n1.group != n2.group ? n2.group_data.size : 0))), -30 + 
 					30 * Math.min((n1.link_count || (n1.group != n2.group ? n1.group_data.link_count : 0)),
 					(n2.link_count || (n1.group != n2.group ? n2.group_data.link_count : 0))),
@@ -438,8 +466,8 @@ function bundleNodes(){
 			return 1;
 		})
 		.gravity(0.05)   // gravity+charge tweaked to ensure good 'grouped' view (e.g. green group not smack between blue&orange, ...
-		.charge(-90)    // ... charge is important to turn single-linked groups to the outside
-		.friction(0.1)   // friction adjusted to get dampened display: less bouncy bouncy ball [Swedish Chef, anyone?]
+		.charge(-100)    // ... charge is important to turn single-linked groups to the outside
+		.friction(0.2)   // friction adjusted to get dampened display: less bouncy bouncy ball [Swedish Chef, anyone?]
 		.start();
 
 		hullg.selectAll("path.hull").remove();
@@ -449,7 +477,7 @@ function bundleNodes(){
 			.attr("class", "hull")
 			.attr("d", drawCluster)
 			.style("fill", function(d) { return fill(d.group); })
-			.on("click", function(d) {
+			.on("dblclick", function(d) {
 				expand[d.group] = false; init();
 			});
 
@@ -457,10 +485,10 @@ function bundleNodes(){
 		link.exit().remove();
 		link.enter().append("line")
 			.attr("class", "link")
-			.attr("x1", function(d) { return d.source.x; })
-			.attr("y1", function(d) { return d.source.y; })
-			.attr("x2", function(d) { return d.target.x; })
-			.attr("y2", function(d) { return d.target.y; })
+			.attr("x1", function(d) { return d.source.x+2; })
+			.attr("y1", function(d) { return d.source.y+2; })
+			.attr("x2", function(d) { return d.target.x+2; })
+			.attr("y2", function(d) { return d.target.y+2; })
 			.style("stroke-width", function(d) { return d.size || 1; });
 
 		node = nodeg.selectAll("circle.node").data(net.nodes, nodeid);
@@ -469,12 +497,16 @@ function bundleNodes(){
 			// if (d.size) -- d.size > 0 when d is a group node.
 			.attr("class", function(d) { return "node" + (d.size?"":" leaf"); })
 			.attr("r", function(d) { return d.size ? d.size + dr : dr+1; })
-			.attr("cx", function(d) { return d.x; })
-			.attr("cy", function(d) { return d.y; })
+			.attr("cx", function(d) { return d.x+2; })
+			.attr("cy", function(d) { return d.y+2; })
 			.style("fill", function(d) { return fill(d.group); })
-			.on("click", function(d) {
+			.on("dblclick", function(d) {
 				expand[d.group] = !expand[d.group];
 				init();
+			})
+			.on("click", function(d){
+				if(!d.nodes)
+					displayAuthor3(d.index);
 			});
 
 		node.call(force.drag);
@@ -512,7 +544,7 @@ function loadJson(){
 			authors = data['authors'];
 			visualizeit()
 			directedGraph()
-			// bundleNodes()
+			bundleNodes()
 		});
 }
 
