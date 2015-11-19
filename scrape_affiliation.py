@@ -36,15 +36,21 @@ def scrape_ieee(doi_url):
 # e.g. first author, second author, etc. This is done because we can't assume the names in the DBLP
 # database exactly match the names shown on the webpage.
 def scrape_affiliation(doi):
-    # The doi urls are typically just http://dx.doi.org/... and we get the actual publication host
-    # by following the redirect, so we must hit the page before we know if we can handle the URL
-    # or not.
-    page = requests.get(doi)
-    if page.url.startswith("http://dl.acm.org/"):
-        return scrape_acm(page)
-    elif page.url.startswith("http://www.computer.org/") \
-            or page.url.startswith("http://ieeexplore.ieee.org/"):
-        return scrape_ieee(doi)
-    print("Warning! Unhandled Journal Site {}".format(page.url))
+    if doi:
+        # The doi urls are typically just http://dx.doi.org/... and we get the actual publication host
+        # by following the redirect, so we must hit the page before we know if we can handle the URL
+        # or not.
+        try:
+            page = requests.get(doi)
+            if page.url.startswith("http://dl.acm.org/"):
+                return scrape_acm(page)
+            elif page.url.startswith("http://www.computer.org/") \
+                    or page.url.startswith("http://ieeexplore.ieee.org/"):
+                return scrape_ieee(doi)
+            print("Warning! Unhandled Journal Site {}".format(page.url))
+        except:
+            print("Warning! Exception encountered when processing {}".format(page.url))
+    else:
+        print("Warning! Empty DOI URL")
     return None
 
