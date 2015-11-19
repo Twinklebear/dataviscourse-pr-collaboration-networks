@@ -214,7 +214,7 @@ if __name__ == "__main__":
                 # Set this author's affiliation now that we've updated the cache
                 a.affiliation = affiliation_cache[a.name]
                 # Sleep a bit to not overload the server we're hitting
-                time.sleep(0.5)
+                time.sleep(0.005)
 
     with open("./data/authors.json", "w") as fp:
         json.dump(authors_array, fp, cls=DBLPEncoder, indent=4)
