@@ -5,6 +5,7 @@
 #highest density subgraphs that aren't larger than the previous and next subgraphs are suspect
 
 import json
+import sys
 
 
 class Node:
@@ -20,6 +21,9 @@ class Node:
       
   def __hash__(self):
     return hash(self.name)
+
+  def __str__(self):
+    return str(self.name)
     
     
   def create_copy(self, copied_node_set):
@@ -122,10 +126,10 @@ def find_densest_subgraph(nodes):
       
       break
     
-      
     for i in range(len(removed_node.neighbors)):
       neighbor= removed_node.neighbors.popitem()[0]
       degree= len(neighbor.neighbors)
+
       del neighbor.neighbors[removed_node]#possible linear operation
       
       subgraph_nodes[degree].remove(neighbor)
@@ -197,12 +201,12 @@ def find_k_densest_subgraphs(nodes, k):
   return data
 
 
-filenames= ["sigplan", "tog", "tvcg"]
+filenames= ["teco", "sigapl"]
 
 for filename in filenames:
   nodes= {}
 
-  json_object= json.loads(open("data/"+ filename+ ".json", "r").read())
+  json_object= json.loads(open("data_small/"+ filename+ ".json", "r").read())
 
   for author in json_object["authors"]:
     nodes[author]= Node(author)
@@ -210,15 +214,13 @@ for filename in filenames:
   for article in json_object["articles"]:
     for author in article["authors"]:
       for collaborator in article["authors"]:
-        if author is collaborator:
+        if author == collaborator:
           continue
 
         if nodes[collaborator] not in nodes[author].neighbors:
           nodes[author].neighbors[nodes[collaborator]]= 1
         else:
           nodes[author].neighbors[nodes[collaborator]]+= 1
-
-  print dir(nodes)
 
   nodes_= []
   for author in nodes:
