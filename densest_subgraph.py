@@ -4,10 +4,12 @@
 
 #highest density subgraphs that aren't larger than the previous and next subgraphs are suspect
 
+import json
+
 
 class Node:
   def __init__(self, name):
-    self.neighbors= []#rename this neighbors
+    self.neighbors= {}#rename this neighbors
     self.name= name
     
   def __eq__(self, other):
@@ -32,12 +34,12 @@ class Node:
       found= False
       for node in copied_node_set:
         if node== neighbor:
-          copied_self.neighbors.append(node)
+          copied_self.neighbors[node]= self.neighbors[neighbor]
           found= True
           break
       
       if not found:
-        copied_self.neighbors.append(neighbor.create_copy(copied_node_set))
+        copied_self.neighbors[neighbor.create_copy(copied_node_set)]= self.neighbors[neighbor]
         
     return copied_self
   
@@ -50,7 +52,7 @@ class Node:
       
     return copied_node_set
 
-def GetDensestSubgraph(nodes):
+def find_densest_subgraph(nodes):
   original_nodes= nodes
   nodes= Node.copy_node_set(original_nodes)
   #for node in nodes
@@ -101,7 +103,7 @@ def GetDensestSubgraph(nodes):
       
       removed_node= None
       if False:
-        removed_node= subgraph_nodes[degree].pop()      
+        removed_node= subgraph_nodes[degree].popitem()[0]     
       else:#I believe this is linear, so may not work for large datasets
         plebbiest_node= None
         lowest_inverse_plebisity= 0
@@ -122,16 +124,16 @@ def GetDensestSubgraph(nodes):
     
       
     for i in range(len(removed_node.neighbors)):
-      neighbor= removed_node.neighbors[i]
+      neighbor= removed_node.neighbors.popitem()[0]
       degree= len(neighbor.neighbors)
-      neighbor.neighbors.remove(removed_node)#possible linear operation
+      del neighbor.neighbors[removed_node]#possible linear operation
       
       subgraph_nodes[degree].remove(neighbor)
       
       if (degree- 1) not in subgraph_nodes:
         subgraph_nodes[degree- 1]= set()
       subgraph_nodes[degree- 1].add(neighbor)
-    
+    name_list= []
     removed_nodes.append(removed_node)
     
 
@@ -152,98 +154,163 @@ def GetDensestSubgraph(nodes):
     if node in removed_node_set:
       continue
     
-    for neighbor in node.neighbors:#possible linear operation
+    for neighbor in node.neighbors.keys():#possible linear operation
       if neighbor in removed_node_set:
-        node.neighbors.remove(neighbor)#possible linear operation
+        del node.neighbors[neighbor]#possible linear operation
     
     densest_subgraph_nodes.add(node)
   
-  return densest_subgraph_nodes
+  return densest_subgraph_nodes, subgraph_densities[highest_density_index]
 
-
-nodes= []
-edges= []
-
-#load nodes and edges
-#build node instances
-#(we presume the input will be in form of separate node and edge lists)
-
-a= Node("a")
-b= Node("b")
-c= Node("c")
-d= Node("d")
-e= Node("e")
-f= Node("f")
-g= Node("g")
-h= Node("h")
-i= Node("i")
-j= Node("j")
-k= Node("k")
-l= Node("l")
-m= Node("m")
-n= Node("n")
-o= Node("o")
-p= Node("p")
-q= Node("q")
-r= Node("r")
-s= Node("s")
-t= Node("t")
-u= Node("u")
-
-a.neighbors= [b, c, d, e, n]
-b.neighbors= [a, c, d, e, n]
-c.neighbors= [a, b, d, e, n]
-d.neighbors= [a, b, c, e, n]
-e.neighbors= [a, b, c, d, n]
-f.neighbors= [g, u, h, i, j]
-g.neighbors= [f, u, h, o, i]
-h.neighbors= [f, g, o, u, q]
-i.neighbors= [f, g, o]
-j.neighbors= [n, f, k]
-k.neighbors= [j, l, m]
-l.neighbors= [p, m, k]
-m.neighbors= [l, k]
-n.neighbors= [a, b, c, d, e, j]
-o.neighbors= [i, h, g]
-p.neighbors= [l]
-q.neighbors= [t, r, s, h]
-r.neighbors= [q, t, s]
-s.neighbors= [r, t, q]
-t.neighbors= [q, r, s]
-u.neighbors= [f, g, h]
-
-nodes= {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u}
-
-for node in nodes:
-  for neighbor in node.neighbors:
-    if node not in neighbor.neighbors:
-      print "network incorrect, fixing..."
-      neighbor.neighbors.append(node)
-
-for i in range(3):
+def find_k_densest_subgraphs(nodes, k):
+  data= {}
+  data["clusters"]= {}
   
-  print "\n\nSubgraph", i
-  densest_subgraph_nodes= GetDensestSubgraph(nodes)
+  for i in range(k):
+    print "\n\nSubgraph", i
+    densest_subgraph_nodes, density= find_densest_subgraph(nodes)
 
-  print "densest subgraph:"
-  for node in densest_subgraph_nodes:
-    print node.name, ":",
+    name_list= []
+    print "densest subgraph:"
+    for node in densest_subgraph_nodes:
+      print node.name, ":",
+      for neighbor in node.neighbors:
+        print neighbor.name, ",",
+      
+      print ""
+      
+      name_list.append(node.name)
+    data["clusters"]["Cluster"+ str(i)]= {"authors": name_list, "density": density}
+
+    for node in densest_subgraph_nodes:
+      print "removing", node.name
+      
+      removed_node= None
+      for node_ in nodes:
+        if node_== node:
+          removed_node= node_
+      nodes.remove(removed_node)
+      
+      for neighbor in removed_node.neighbors:
+        del neighbor.neighbors[node]
+
+  return data
+
+
+filenames= ["sigplan", "tog", "tvcg"]
+
+for filename in filenames:
+  nodes= {}
+
+  json_object= json.loads(open("data/"+ filename+ ".json", "r").read())
+
+  for author in json_object["authors"]:
+    nodes[author]= Node(author)
+
+  for article in json_object["articles"]:
+    for author in article["authors"]:
+      for collaborator in article["authors"]:
+        if author is collaborator:
+          continue
+
+        if nodes[collaborator] not in nodes[author].neighbors:
+          nodes[author].neighbors[nodes[collaborator]]= 1
+        else:
+          nodes[author].neighbors[nodes[collaborator]]+= 1
+
+  print dir(nodes)
+
+  nodes_= []
+  for author in nodes:
+    nodes_.append(nodes[author])
+
+  data= find_k_densest_subgraphs(nodes_, 5)
+  open(filename+ "_clusters.json", "w").write(json.dumps(data))
+
+if False:
+  nodes= []
+  edges= []
+
+  #load nodes and edges
+  #build node instances
+  #(we presume the input will be in form of separate node and edge lists)
+
+  a= Node("a")
+  b= Node("b")
+  c= Node("c")
+  d= Node("d")
+  e= Node("e")
+  f= Node("f")
+  g= Node("g")
+  h= Node("h")
+  i= Node("i")
+  j= Node("j")
+  k= Node("k")
+  l= Node("l")
+  m= Node("m")
+  n= Node("n")
+  o= Node("o")
+  p= Node("p")
+  q= Node("q")
+  r= Node("r")
+  s= Node("s")
+  t= Node("t")
+  u= Node("u")
+
+  a.neighbors= [b, c, d, e, n]
+  b.neighbors= [a, c, d, e, n]
+  c.neighbors= [a, b, d, e, n]
+  d.neighbors= [a, b, c, e, n]
+  e.neighbors= [a, b, c, d, n]
+  f.neighbors= [g, u, h, i, j]
+  g.neighbors= [f, u, h, o, i]
+  h.neighbors= [f, g, o, u, q]
+  i.neighbors= [f, g, o]
+  j.neighbors= [n, f, k]
+  k.neighbors= [j, l, m]
+  l.neighbors= [p, m, k]
+  m.neighbors= [l, k]
+  n.neighbors= [a, b, c, d, e, j]
+  o.neighbors= [i, h, g]
+  p.neighbors= [l]
+  q.neighbors= [t, r, s, h]
+  r.neighbors= [q, t, s]
+  s.neighbors= [r, t, q]
+  t.neighbors= [q, r, s]
+  u.neighbors= [f, g, h]
+
+  nodes= {a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u}
+
+  for node in nodes:
     for neighbor in node.neighbors:
-      print neighbor.name, ",",
+      if node not in neighbor.neighbors:
+        print "network incorrect, fixing..."
+        neighbor.neighbors.append(node)
+
+  for i in range(3):
     
-    print ""
+    print "\n\nSubgraph", i
+    densest_subgraph_nodes= GetDensestSubgraph(nodes)
+
+    print "densest subgraph:"
+    for node in densest_subgraph_nodes:
+      print node.name, ":",
+      for neighbor in node.neighbors:
+        print neighbor.name, ",",
+      
+      print ""
 
 
-  for node in densest_subgraph_nodes:
-    print "removing", node.name
+    for node in densest_subgraph_nodes:
+      print "removing", node.name
+      
+      removed_node= None
+      for node_ in nodes:
+        if node_== node:
+          removed_node= node_
+      nodes.remove(removed_node)
+      
+      for neighbor in removed_node.neighbors:
+        neighbor.neighbors.remove(node)
     
-    removed_node= None
-    for node_ in nodes:
-      if node_== node:
-        removed_node= node_
-    nodes.remove(removed_node)
-    
-    for neighbor in removed_node.neighbors:
-      neighbor.neighbors.remove(node)
-  
 
