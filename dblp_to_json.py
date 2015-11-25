@@ -128,7 +128,7 @@ if __name__ == "__main__":
                             print("Saving out {}\n\tnum_authors = {}\n\tnum_articles = {}".format(journal.title,
                                 len(journal.authors), journal.num_articles))
                             with open("./data/" + journal.short_name + ".json", "w") as fp:
-                                json.dump(journal, fp, cls=DBLPEncoder, indent=4)
+                                json.dump(journal, fp, cls=DBLPEncoder)
                         # Setup the new journal we're reading
                         title = ""
                         # Find the journal's full title
@@ -175,7 +175,7 @@ if __name__ == "__main__":
         print("Saving out {}\n\tnum_authors = {}\n\tnum_articles = {}".format(journal.title,
             len(journal.authors), journal.num_articles))
         with open("./data/" + journal.short_name + ".json", "w") as fp:
-            json.dump(journal, fp, cls=DBLPEncoder, indent=4)
+            json.dump(journal, fp, cls=DBLPEncoder)
 
     # Save out the author information we've read in
     print("Saving out {} authors".format(len(authors)))
@@ -217,8 +217,8 @@ if __name__ == "__main__":
                 time.sleep(0.005)
 
     with open("./data/authors.json", "w") as fp:
-        json.dump(authors_array, fp, cls=DBLPEncoder, indent=4)
+        json.dump(authors_array, fp, cls=DBLPEncoder)
     # Also dump our updated affiliation cache
     with open("./data/affiliation_cache.json", "w") as fp:
-        json.dump(affiliation_cache, fp, indent=4)
+        json.dump(affiliation_cache, fp)
 
