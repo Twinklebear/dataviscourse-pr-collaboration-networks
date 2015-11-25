@@ -4,20 +4,29 @@ import re
 import networkx as nx
 
 
+only_two_author_articles= False
+
 def get_collaboration_graph(json_filename):
-  authors= set()
+  authors= {}
   edges= {}
   
   json_object= json.loads(open(json_filename, "r").read())
 
   for author in json_object["authors"]:
-    authors.add(author)
+    authors[author]= 0
 
   for article in json_object["articles"]:
+    if len(article["authors"])< 2 or (only_two_author_articles and len(article["authors"])> 2):
+      continue
+    
+    
+    
     for author in article["authors"]:
       if author not in authors:
         continue
-
+      
+      authors[author]+= 1
+      
       for collaborator in article["authors"]:
         if collaborator not in authors:
           continue
@@ -34,7 +43,12 @@ def get_collaboration_graph(json_filename):
           edges[pair]= 0
         edges[pair]+= 1
 
-  return authors, edges
+  connected_authors= set()
+  for author in authors:
+    if authors[author]> 0:
+      connected_authors.add(author)
+
+  return connected_authors, edges
 
 def get_authors_from_gml(gml_filename):
   gml_object= json.loads(open(gml_filename, "r").read())
@@ -64,7 +78,7 @@ if len(sys.argv)== 3:
     gml_file.write("node [\nid "+ str(author)+ "\nlabel \n\""+ str(author)+ "\"\n]\n")
     
   for edge in edges:
-    gml_file.write("edge [\nsource "+ str(edge[0])+ "\ntarget "+ str(edge[1])+ "\n]\n")
+    gml_file.write("edge [\nsource "+ str(edge[0])+ "\ntarget "+ str(edge[1])+ "\nvalue "+ str(edges[edge])+ "\n]\n")
     
   gml_file.write("]")
     

@@ -78,8 +78,12 @@ def find_densest_subgraph(nodes):
     
   #for degree in subgraph_nodes:
   #  subgraph_nodes[degree]= sorted(subgraph_nodes, key=id)
-    
+  
+  print_interval= 1000
   for i in range(len(nodes)):
+    
+    if (i% print_interval)== 0:
+      print "processed", i, "nodes..."
     
     density= 0
     total_node_count= 0
@@ -167,12 +171,17 @@ def find_densest_subgraph(nodes):
   return densest_subgraph_nodes, subgraph_densities[highest_density_index]
 
 def find_k_densest_subgraphs(nodes, k):
+  nodes= Node.copy_node_set(nodes)
+  
   data= {}
   data["clusters"]= {}
   
   for i in range(k):
     print "\n\nSubgraph", i
     densest_subgraph_nodes, density= find_densest_subgraph(nodes)
+    
+    if density< 4:
+      continue
 
     name_list= []
     print "densest subgraph:"
@@ -200,20 +209,59 @@ def find_k_densest_subgraphs(nodes, k):
 
   return data
 
+def flood_fill_(nodes, node, flood_nodes):
+  for neighbor in node.neighbors:
+    if neighbor in flood_nodes:
+      continue
+    
+    flood_nodes.add(neighbor)
+    flood_fill_(nodes, neighbor, flood_nodes)
 
-filenames= ["teco", "sigapl"]
+def flood_fill(nodes, node):
+  flood_nodes= set()
+  
+  flood_fill_(nodes, node, flood_nodes)
+  
+  return flood_nodes
+    
+def find_connected_subgraphs(nodes, selected_nodes):
+  subgraphs= []
+  
+  for node in selected_nodes:
+    
+    found= False
+    for subgraph in subgraphs:
+      if node in subgraph:
+        found= True
+        break
+    
+    if not found:
+      print "Performing flood fill on", len(nodes), "nodes."
+      subgraphs.append(flood_fill(nodes, node))
+      
+  return subgraphs
+
+filenames= ["data_small/displays_curated", "data_small/teco_curated", "data_med/tist_curated", "data_med/tissec_curated", "data/sigplan_curated"]
 
 for filename in filenames:
   nodes= {}
 
-  json_object= json.loads(open("data_small/"+ filename+ ".json", "r").read())
+  json_object= json.loads(open(filename+ ".json", "r").read())
 
   for author in json_object["authors"]:
     nodes[author]= Node(author)
 
   for article in json_object["articles"]:
+    #if not len(article["authors"])== 2:
+    #  continue
+    
     for author in article["authors"]:
+      if author not in nodes:
+        continue
+      
       for collaborator in article["authors"]:
+        if collaborator not in nodes:
+          continue
         if author == collaborator:
           continue
 
@@ -222,12 +270,31 @@ for filename in filenames:
         else:
           nodes[author].neighbors[nodes[collaborator]]+= 1
 
-  nodes_= []
+  nodes_= set()
   for author in nodes:
-    nodes_.append(nodes[author])
+    nodes_.add(nodes[author])
 
-  data= find_k_densest_subgraphs(nodes_, 5)
-  open(filename+ "_clusters.json", "w").write(json.dumps(data))
+  data= find_k_densest_subgraphs(nodes_, 7)
+  open(filename+ "_clusters.json", "w").write(json.dumps(data, indent= 4))
+  
+  dense_nodes= set()
+  for cluster in data["clusters"]:
+    for author in data["clusters"][cluster]["authors"]:
+      print author
+      dense_nodes.add(nodes[author])
+  
+  connected_subgraphs= find_connected_subgraphs(nodes_, dense_nodes)
+  
+  connected_subgraph_author_ids= set()
+  for subgraph in connected_subgraphs:
+    for node in subgraph:
+      if node.name not in connected_subgraph_author_ids:
+        connected_subgraph_author_ids.add(node.name)
+      else:
+        print "Whoops!"
+      
+  json_object["authors"]= list(connected_subgraph_author_ids)
+  open(filename+ "_connected.json", "w").write(json.dumps(json_object, indent= 4))
 
 if False:
   nodes= []
