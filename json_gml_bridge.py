@@ -4,7 +4,7 @@ import re
 import networkx as nx
 
 
-only_two_author_articles= False
+#only_two_author_articles= True
 
 def get_collaboration_graph(json_filename):
   authors= {}
@@ -16,8 +16,8 @@ def get_collaboration_graph(json_filename):
     authors[author]= 0
 
   for article in json_object["articles"]:
-    if len(article["authors"])< 2 or (only_two_author_articles and len(article["authors"])> 2):
-      continue
+    #if len(article["authors"])< 2 or (only_two_author_articles and len(article["authors"])> 4):
+    #  continue
     
     
     

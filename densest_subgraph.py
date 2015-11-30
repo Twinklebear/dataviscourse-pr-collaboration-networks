@@ -241,7 +241,7 @@ def find_connected_subgraphs(nodes, selected_nodes):
       
   return subgraphs
 
-filenames= ["data_small/displays_curated", "data_small/teco_curated", "data_med/tist_curated", "data_med/tissec_curated", "data/sigplan_curated"]
+filenames= ["data/tvcg"]
 
 for filename in filenames:
   nodes= {}
@@ -252,7 +252,7 @@ for filename in filenames:
     nodes[author]= Node(author)
 
   for article in json_object["articles"]:
-    #if not len(article["authors"])== 2:
+    #if len(article["authors"])< 2 or len(article["authors"])> 4:
     #  continue
     
     for author in article["authors"]:
