@@ -1,7 +1,3 @@
-//d3.loadData : https://groups.google.com/forum/#!topic/d3-js/3hHke9ZKfQM
-// or can use queue() https://groups.google.com/forum/#!msg/d3-js/3Y9VHkOOdCM/YnmOPopWUxQJ
-//            <script src="https://cdnjs.cloudflare.com/ajax/libs/queue-async/1.0.7/queue.min.js"></script>
-
 d3.loadData = function() { 
 	var loadedCallback = null; 
 	var toload = {}; 
@@ -38,70 +34,19 @@ d3.loadData = function() {
 	return loader; 
 }; 
 
-
-var hull_path = function(d){
-	return "M" + d3.geom.hull(d.values.map(function(i){ return [i.x, i.y]; })).join("L") + "Z";
-}
-
 var datapath = 'data/';
 var newline = '</br>';
 var journal1;
 var journal2;
+var cluster1;
+var cluster2;
+var cluster3;
+var clusters;
 var authors;
 
-function displayAuthor(d){
-	var author = authors[d]; 
-	var msg = "Author Name: " + author.name + newline;
-	for(var i = 0; i<author.articles.length; i++){
-		var article = author.articles[i];
-		msg+= "<a href="+ article.doi+ ">" + article.title + "</a>"+newline;
-		msg+= "year: " + article.year + newline;
-		if(article.authors.length>0){
-			if(article.authors.length>1){
-				msg+= "collaborators: ";
-				for(var j = 0; j<article.authors.length; j++){
-					if(article.authors[j] != d)
-						if(j<article.authors.length-1)
-							msg += authors[article.authors[j]].name + ", ";
-						else
-							msg += authors[article.authors[j]].name;
-				}
-				msg+= newline;
-			}else{
-				if(article.authors[0] != d)
-					msg += "collaborators: "+ authors[article.authors[j]].name+ newline;
-			}			
-		}
-	}
-	document.getElementById('author_info').innerHTML = msg;
-}
-
-function displayAuthor2(d){
-	var author = authors[d]; 
-	var msg = "Author Name: " + author.name + newline;
-	for(var i = 0; i<author.articles.length; i++){
-		var article = author.articles[i];
-		msg+= "<a href="+ article.doi+ ">" + article.title + "</a>"+newline;
-		msg+= "year: " + article.year + newline;
-		if(article.authors.length>0){
-			if(article.authors.length>1){
-				msg+= "collaborators: ";
-				for(var j = 0; j<article.authors.length; j++){
-					if(article.authors[j] != d)
-						if(j<article.authors.length-1)
-							msg += authors[article.authors[j]].name + ", ";
-						else
-							msg += authors[article.authors[j]].name;
-				}
-				msg+= newline;
-			}else{
-				if(article.authors[0] != d)
-					msg += "collaborators: "+ authors[article.authors[j]].name+ newline;
-			}			
-		}
-	}
-	document.getElementById('author_info2').innerHTML = msg;
-}
+var color = d3.scale.linear()
+  .domain([1,2,3])
+  .range(["lime", "yellow", "orange"]);
 
 function displayAuthor3(d){
 	var author = authors[d]; 
@@ -128,131 +73,6 @@ function displayAuthor3(d){
 		}
 	}
 	document.getElementById('author_info3').innerHTML = msg;
-}
-
-function visualizeit(){
-	var main_width = 960;
-	var main_height = 700;
-	var fill = d3.scale.category10();
-	var groupFill = function(d, i) { return fill(i < journal1.num_authors ? 1 : 2); };
-	var sum_authors = journal1.num_authors + journal2.num_authors;
-	var nodes = d3.range(sum_authors).map(Object);
-	var groups = d3.nest().key(function(d){ return d < journal1.num_authors ? 1 : 2;}).entries(nodes);
-	
-	var main_view = d3.select("#convex_hulls").append("svg")
-		.attr("width", main_width)
-		.attr("height", main_height);
-	var force = d3.layout.force()
-		.nodes(nodes)
-		.links([])
-		.size([main_width, main_height])
-		.start();
-
-	var circles = main_view.selectAll("circle")
-		.data(nodes);
-
-	circles.enter().append("circle")
-		.attr("cx", function(d){return d.x; })
-		.attr("cy", function(d){return d.y; })
-		.attr("r", 8)
-		.style("fill", groupFill)
-		.call(force.drag)
-		.on("click", function(d){ 
-			displayAuthor(d)
-		});
-
-	force.on("tick", function(e){
-		// Push different journal groups in different directions for clustering
-		var k = 6 * e.alpha;
-		nodes.forEach(function(o, i){
-			o.x += i < journal1.num_authors ? k : -k;
-			o.y += i <journal1.num_authors ? k : -k;
-		});
-
-		circles.attr("cx", function(d){ return d.x; })
-			.attr("cy", function(d){ return d.y; });
-
-		main_view.selectAll("path")
-			.data(groups).attr("d", hull_path)
-			.enter().insert("path", "circle")
-			.style("fill", groupFill)
-			.style("stroke", groupFill)
-			.style("stroke-width", 40)
-			.style("stroke-linejoin", "round")
-			.style("opacity", .2)
-			.attr("d", hull_path);
-	});
-}
-
-function directedGraph(){
-	var width = 960,
-	height = 500;
-
-	var color = d3.scale.category20();
-
-	var force = d3.layout.force()
-		.charge(-10)
-		.linkDistance(30)
-		.size([width, height]);
-
-	var svg = d3.select("#force_directed").append("svg")
-		.attr("width", width)
-		.attr("height", height);
-
-	var sum_authors = journal1.num_authors + journal2.num_authors;
-	var nodes = d3.range(sum_authors).map(Object);
-
-	var links = [];
-	for(var i = 0; i<authors.length; i++){
-		var author = authors[i];
-		for(var j = 0; j<author.articles.length; j++){
-			var article = author.articles[j];
-			for(var k = 0; k < article.authors.length; k++)
-				if(article.authors[k] != i){
-					links.push({"source":i,"target":article.authors[k], "value": i < journal1.num_authors ? 1 : 2})
-				}
-		}
-	}
-
-	force
-		.nodes(nodes)
-		.links(links)
-		.start();
-
-	var link = svg.selectAll(".link")
-		.data(links)
-		.enter().append("line")
-		.attr("class", "link")
-		.style("stroke-width", function(d) { return Math.sqrt(d.value); });
-
-	var node = svg.selectAll(".node")
-		.data(nodes)
-		.enter().append("circle")
-		.attr("class", "node")
-		.attr("r", 5)
-		.style("fill", function(d) { return color(d < journal1.num_authors ? 1 : 2); })
-		.call(force.drag)
-		.on("click", function(d){ 
-			displayAuthor2(d)
-		});
-
-	node.append("title")
-		.text(function(d) { return authors[d].name; });
-
-	force.on("tick", function(e) {
-		var k = 6 * e.alpha;
-		nodes.forEach(function(o, i){
-			o.x += i < journal1.num_authors ? k : -k;
-			o.y += i <journal1.num_authors ? k : -k;
-		});
-		link.attr("x1", function(d) { return d.source.x; })
-			.attr("y1", function(d) { return d.source.y; })
-			.attr("x2", function(d) { return d.target.x; })
-			.attr("y2", function(d) { return d.target.y; });
-
-		node.attr("cx", function(d) { return d.x; })
-			.attr("cy", function(d) { return d.y; });
-	});
 }
 
 function bundleNodes(){
@@ -290,7 +110,7 @@ function bundleNodes(){
 		return u<v ? u+"|"+v : v+"|"+u;
 	}
 
-	function getGroup(n) { return n.group; }
+	function getGroup(n) {return n.group; }
 
 	// constructs the network to visualize
 	function network(data, prev, index, expand) {
@@ -306,6 +126,7 @@ function bundleNodes(){
 	  // process previous nodes for reuse or centroid calculation
 		if (prev) {
 			prev.nodes.forEach(function(n) {
+				console.log(n);
 				var i = index(n), o;
 				if (n.size > 0) {
 					gn[i] = n;
@@ -320,7 +141,9 @@ function bundleNodes(){
   		}
 
 		// determine nodes
+		console.log(data.nodes[504]);
 		for (var k=0; k<data.nodes.length; ++k) {
+			
 			var n = data.nodes[k],
 			i = index(n),
 			l = gm[i] || (gm[i]=gn[i]) || (gm[i]={group:i, size:0, nodes:[]});
@@ -406,25 +229,38 @@ function bundleNodes(){
 				.attr("width", width)
 				.attr("height", height);
 
-	var sum_authors = journal1.num_authors + journal2.num_authors;
+	// var sum_authors = journal1.num_authors + journal2.num_authors;
 	var nodes = [];//d3.range(sum_authors).map(Object);
-	for(var i = 0; i<authors.length; i++){
-		nodes.push({"name":authors[i].name, "group":i<journal1.num_authors? 1:2});
-	}
-
-	data = {"nodes":[], "links":[]};
-	data.nodes = nodes;
 	var links = [];
-	for(var i = 0; i<authors.length; i++){
-		var author = authors[i];
-		for(var j = 0; j<author.articles.length; j++){
-			var article = author.articles[j];
-			for(var k = 0; k < article.authors.length; k++)
-				if(article.authors[k] != i){
-					links.push({"source":i,"target":article.authors[k], "value": i < journal1.num_authors ? 1 : 2})
+	var local_nodeid = 0;
+	for(var i = 0; i<clusters.length; i++){
+		for(var j = 0; j<Object.keys(clusters[i].clusters).length; j++){
+			var numAuthors = clusters[i].clusters["Cluster"+j].authors.length;
+			for(var k = 0; k<numAuthors; k++){
+				nodes.push({"name":authors[clusters[i].clusters["Cluster"+j].authors[k]].name, "group":i, "cluster":j, "node_id":clusters[i].clusters["Cluster"+j].authors[k]});
+				console.log(clusters[i].clusters["Cluster"+j].authors[k])
+				//create link
+				if(k>0){
+					links.push({"source":local_nodeid-1, "target":local_nodeid, "value":i})
 				}
+				local_nodeid++;	
+			}
+			links.push({"source":(local_nodeid)-numAuthors, "target":local_nodeid-1, "value":i})
 		}
 	}
+	data = {"nodes":[], "links":[]};
+	data.nodes = nodes;
+	// var links = [];
+	// for(var i = 0; i<authors.length; i++){
+	// 	var author = authors[i];
+	// 	for(var j = 0; j<author.articles.length; j++){
+	// 		var article = author.articles[j];
+	// 		for(var k = 0; k < article.authors.length; k++)
+	// 			if(article.authors[k] != i){
+	// 				links.push({"source":i,"target":article.authors[k], "value": i < journal1.num_authors ? 1 : 2})
+	// 			}
+	// 	}
+	// }
 	
 	data.links = links;
 	for (var i=0; i<data.links.length; ++i) {
@@ -509,14 +345,14 @@ function bundleNodes(){
 			.attr("r", function(d) { return d.size ? d.size + dr : dr+1; })
 			.attr("cx", function(d) { return d.x+2; })
 			.attr("cy", function(d) { return d.y+2; })
-			.style("fill", function(d) { return fill(d.group); })
+			.style("fill", function(d) { if(!expand[d.group]) return fill(d.group); else return fill(d.group*2+d.cluster);})
 			.on("dblclick", function(d) {
 				expand[d.group] = !expand[d.group];
 				init();
 			})
 			.on("click", function(d){
 				if(!d.nodes)
-					displayAuthor3(d.index);
+					displayAuthor3(d.node_id);
 			})
 			.on("mousewheel.zoom", function(d) { d3.event.stopPropagation();
 		    	var dcx = (width/2-d.x*zoom.scale());
@@ -529,10 +365,10 @@ function bundleNodes(){
 
 		force.on("tick", function(e) {
 			var k = 6 * e.alpha;
-			nodes.forEach(function(o, i){
-				o.x += i < journal1.num_authors ? k : -k;
-				o.y += i <journal1.num_authors ? k : -k;
-			});
+			// nodes.forEach(function(o, i){
+			// 	o.x += i < journal1.num_authors ? k : -k;
+			// 	o.y += i <journal1.num_authors ? k : -k;
+			// });
 			if (!hull.empty()) {
 				hull.data(convexHulls(net.nodes, getGroup, off))
 					.attr("d", drawCluster);
@@ -568,39 +404,30 @@ function bundleNodes(){
 	}
 }
 
-function loadJson2(){
+function loadJson(){
 	datapath = 'data/'
 	d3.loadData()
-		.json("sigapl", datapath+"sigplan.json")
+		// .json("sigapl", datapath+"sigapl.json")
 		.json("authors", datapath+"authors.json")
-		.json("teco", datapath+"tvcg.json")
+		// .json("teco", datapath+"teco.json")
+		.json("cluster1", datapath+"tog_clusters.json")
+		.json("cluster2", datapath+"sigplan_clusters.json")
+		.json("cluster3", datapath+"tvcg_clusters.json")
 		.onload(function(data){
-			journal1 = data['sigapl'];
-			journal2 = data['teco'];
+			// journal1 = data['sigapl'];
+			// journal2 = data['teco'];
 			authors = data['authors'];
-			// visualizeit()
-			// directedGraph()
-			bundleNodes()
-		});
-}
-
-function loadJson(){
-	datapath = 'data2/'
-	d3.loadData()
-		.json("sigapl", datapath+"sigapl.json")
-		.json("authors", datapath+"authors.json")
-		.json("teco", datapath+"teco.json")
-		.onload(function(data){
-			journal1 = data['sigapl'];
-			journal2 = data['teco'];
-			authors = data['authors'];
-			// visualizeit()
-			// directedGraph()
+			clusters = [];
+			clusters[0] = data['cluster3'];
+			clusters[1] = data['cluster2'];
+			clusters[2] = data['cluster1'];
+			console.log(clusters.length);
+			console.log(Object.keys(clusters[1].clusters).length);
+			console.log(clusters[2].clusters["Cluster"+4])
+			console.log(clusters[2].clusters["Cluster"+4].authors.length)
 			bundleNodes()
 		});
 }
 window.onload = function(){	
-	
 	loadJson();
 }
-
