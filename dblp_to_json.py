@@ -77,18 +77,19 @@ class Journal():
         }
 
 # Check that the data and data/authors directories exist. If not, create them
-def check_directories():
-    if not os.path.isdir("./data/"):
-        os.mkdir("./data")
+def check_directories(d):
+    if not os.path.isdir(d):
+        os.mkdir(d)
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: ./dblp_to_json <dblp file> <journal_filters.json>")
+    if len(sys.argv) < 4:
+        print("Usage: ./dblp_to_json <dblp file> <journal_filters.json> <output dir>")
         print("\tThe journal filters JSON file specifies the short names of journals that")
         print("\tyou're interested in getting the reduced JSON data for")
         sys.exit(1)
 
-    check_directories()
+    out_dir = sys.argv[3]
+    check_directories(out_dir)
 
     desired_journals = {}
     with open(sys.argv[2], "r") as f:
@@ -127,7 +128,7 @@ if __name__ == "__main__":
                         if journal:
                             print("Saving out {}\n\tnum_authors = {}\n\tnum_articles = {}".format(journal.title,
                                 len(journal.authors), journal.num_articles))
-                            with open("./data/" + journal.short_name + ".json", "w") as fp:
+                            with open(out_dir + "/" + journal.short_name + ".json", "w") as fp:
                                 json.dump(journal, fp, cls=DBLPEncoder)
                         # Setup the new journal we're reading
                         title = ""
@@ -174,7 +175,7 @@ if __name__ == "__main__":
     if journal:
         print("Saving out {}\n\tnum_authors = {}\n\tnum_articles = {}".format(journal.title,
             len(journal.authors), journal.num_articles))
-        with open("./data/" + journal.short_name + ".json", "w") as fp:
+        with open(out_dir + "/" + journal.short_name + ".json", "w") as fp:
             json.dump(journal, fp, cls=DBLPEncoder)
 
     # Save out the author information we've read in
@@ -185,8 +186,8 @@ if __name__ == "__main__":
     # Now go through and sort out everyone's affiliation, also use any cached information we might have in
     # affiliation_cache.json
     affiliation_cache = {}
-    if os.path.isfile("./data/affiliation_cache.json"):
-        with open("./data/affiliation_cache.json", "r") as fp:
+    if os.path.isfile(out_dir + "/affiliation_cache.json"):
+        with open(out_dir + "/affiliation_cache.json", "r") as fp:
             affiliation_cache = json.load(fp)
     for a in authors_array:
         # If we've cached this author's affiliation information just re-use it
@@ -194,7 +195,10 @@ if __name__ == "__main__":
             a.affiliation = affiliation_cache[a.name]
         # If we don't have affiliation information pick their first article and load it
         elif a.affiliation == None and not a.name in affiliation_cache:
-            article = a.articles[0]
+            # TODO: Pick the most recent article, not the first one in the array
+            # we should actually sort the articles by year
+            a.articles.sort(key=lambda x: x.year)
+            article = a.articles[-1]
             print("Fetching affiliations from {}".format(article.doi))
             affiliations = scrape_affiliation(article.doi)
             if affiliations == None:
@@ -216,9 +220,9 @@ if __name__ == "__main__":
                 # Sleep a bit to not overload the server we're hitting
                 time.sleep(0.005)
 
-    with open("./data/authors.json", "w") as fp:
+    with open(out_dir + "/authors.json", "w") as fp:
         json.dump(authors_array, fp, cls=DBLPEncoder)
     # Also dump our updated affiliation cache
-    with open("./data/affiliation_cache.json", "w") as fp:
+    with open(out_dir + "/affiliation_cache.json", "w") as fp:
         json.dump(affiliation_cache, fp)
 
