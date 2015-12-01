@@ -2,9 +2,17 @@
 
 Authors: Kevin Wall, Mike Liu, Will Usher
 
-## Project git Proposal
+## Timeline - may get integrated into process book section 
 
-## Milestone Report
+### Brainstorming
+
+### Project Proposal
+
+### Early Work
+
+### Milestone Report
+
+### Final Work
 
 
 ## Process Book
