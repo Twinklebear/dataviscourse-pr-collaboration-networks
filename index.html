@@ -1,11 +1,20 @@
-<!-- DOCTYPE html5 -->
+<!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Collaboration Networks</title>
 	<meta charset="utf-8">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-</head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
+		integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
+		integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+	<title>Collaboration Networks</title>
+	</head>
 <style>
 
 .node {
@@ -48,39 +57,31 @@ line.link {
 
 </style>
 <body>
+	<div class="container">
+		TODO: container or container fluid? having it as a container might be a bit too small
+		<h3>CS6630 Project: Collaboration Networks</h3>
+		<div id="member_info">
+			members: Kevin Wall, Mike Liu, Will Usher
+		</div>
+		<div>
+			<a href="index.html">Home</a>
+			<a href="clustered.html">Clustered Network</a>
+		</div>
+		<div class="col-md-8" id="bundle_nodes">
+			<p>Double-click a graph to see nodes in a graph</p>
+		</div>
+		<div class="col-md-4">
+			<h4>Selection info goes here</h4>
+			<div id="author_info3">
+			</div>
+		</div>
+	</div>
 
-<h3>CS6630 Project: Collaboration Networks</h3>
-
-<div id="member_info">
-	members: Kevin Wall, Mike Liu, Will Usher
-</div>
-<div>
-<a href="index.html">Home</a>
-<a href="clustered.html">Clustered Network</a>
-</div>
-<hr>
-<p>Click a node to see detail</p>
-<!-- <b>Convex Hulls</b>
-<div id="author_info">
-</div>
-<div class="interactive_window" id="convex_hulls">
-</div>
-
-<b>Force-Directed Graph</b>
-<div id="author_info2">
-</div>
-<div class="interactive_window" id="force_directed">
-</div> -->
-
-<b>Bundle Nodes</b>
-<p>Double-click a graph to see nodes in a graph</p>
-
-<div class="interactive_window" id="bundle_nodes">
-</div>
-<div id="author_info3">
-</div>
-
-<script src="js/script.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<!-- Latest compiled and minified JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+		integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<script src="js/script.js"></script>
 </body>
 </html>
 

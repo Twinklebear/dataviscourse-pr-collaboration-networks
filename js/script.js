@@ -256,8 +256,7 @@ function directedGraph(){
 }
 
 function bundleNodes(){
-	var width = 960,     // svg width
-		height = 600,     // svg height
+	var height = 600,     // svg height
 		dr = 4,      // default point radius
 		off = 15,    // cluster hull offset
 		expand = {}, // expanded clusters
@@ -403,7 +402,7 @@ function bundleNodes(){
 
 // --------------------------------------------------------
 	var vis = d3.select("#bundle_nodes").append("svg")
-				.attr("width", width)
+				.attr("class", "col-md-12")
 				.attr("height", height);
 
 	var sum_authors = journal1.num_authors + journal2.num_authors;
