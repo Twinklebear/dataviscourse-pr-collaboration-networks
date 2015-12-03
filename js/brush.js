@@ -13,7 +13,7 @@ var BrushView = function(event_handler){
     // for(var i = brushYearStart; i<=brushYearEnd; i+=10)
     //     self.dislayYear.push(i);
     self.z = d3.scale.ordinal().range(["steelblue", "indianred"]);
-
+    this.brush = 
 	// TODO: Emit a brush changed event when the brush is changed
 	this.event_handler = event_handler;
 
@@ -25,14 +25,35 @@ var BrushView = function(event_handler){
 		self.author_selected(author_id);
 	});
 }
-BrushView.prototype.select_journal = function(journal, clusters) {
+BrushView.prototype.select_journal = function(data) {
 	// TODO: Reset brush
 	console.log("TODO: MIKE BrushView select journal");
+	data.forEach(function (d) {
+        d["count"] = +d["count"];
+        d["year"] = d3.time.format("%Y").parse(d["year"]).getFullYear();
+    });
+    var freqs = d3.layout.stack()(["count"].map(function (type) {
+        return data.map(function (d) {
+            return {
+                x: +d["year"],
+                y: +d[type]
+            };
+        });
+    }));
+    this.x.domain(freqs[0].map(function (d) {
+        return d.x;
+    }));
+
+    this.y.domain([0, d3.max(freqs[freqs.length - 1], function (d) {
+        return d.y0 + d.y;
+    })]);
+    this.update(freqs);
 }
 BrushView.prototype.author_selected = function(author) {
-	// TODO: Reset brush
+	// TODO: Show histogram of author's publication
 	console.log("TODO: MIKE BrushView author selected");
 }
+
 BrushView.prototype.loadData = function(datapath, journal){
     var self = this;
     x = d3.scale.ordinal().rangeRoundBands([0, self.width-60], .5);
@@ -67,8 +88,8 @@ BrushView.prototype.update = function(data){
         margin = self.margin,
         height = self.height,
         width  = self.width,
-        // x = self.x,
-        // y = self.y,
+        x = self.x,
+        y = self.y,
         z = self.z;
 
     var barchart = d3.select("#brush");
@@ -130,7 +151,7 @@ BrushView.prototype.update = function(data){
     y_axis = d3.svg.axis().scale(y).orient("right");
 
     // x axis
-    barchart.append("g")
+    this.barchart.append("g")
         .attr("class", "x axis")
         .style("fill", "#000")
         .attr("transform", "translate(0," + height + ")")
@@ -141,14 +162,14 @@ BrushView.prototype.update = function(data){
         .attr("transform", "rotate(90)");
 
     // y axis
-    barchart.append("g")
+    this.barchart.append("g")
         .attr("class", "y axis")
         .style("fill", "#000")
         .attr("transform", "translate(" + (width - 85) + ",0)")
         .call(y_axis);
 
     // Add a group for each cause.
-    var freq = barchart.selectAll("g.freq")
+    var freq = this.barchart.selectAll("g.freq")
         .data(data)
       .enter().append("g")
         .attr("class", "freq")
@@ -177,7 +198,7 @@ BrushView.prototype.update = function(data){
         });
 
     // Draw the brush
-    brush = d3.svg.brush()
+    this.brush = d3.svg.brush()
         .x(x)
         .on("brush", brushmove)
         .on("brushend", brushend);
@@ -187,15 +208,15 @@ BrushView.prototype.update = function(data){
       .startAngle(0)
       .endAngle(function(d, i) { return i ? -Math.PI : Math.PI; });
 
-    brushg = barchart.append("g")
+    this.brushg = barchart.append("g")
       .attr("class", "brush")
       .call(brush);
 
-    brushg.selectAll(".resize").append("path")
+    this.brushg.selectAll(".resize").append("path")
         .attr("transform", "translate(0," +  height / 2 + ")")
         .attr("d", arc);
 
-    brushg.selectAll("rect")
+    this.brushg.selectAll("rect")
         .attr("height", height);
 }
 
@@ -204,31 +225,29 @@ BrushView.prototype.update = function(data){
 // ****************************************
 BrushView.prototype.brushmove = function()
 {
-    // var self = this,
-    //     y = self.y,
-    //     x = self.x;
-    
-    y.domain(x.range()).range(x.domain());
-    b = brush.extent();
+	var self = this;
+    this.y.domain(x.range()).range(x.domain());
+    b = this.brush.extent();
 
     var localBrushYearStart = (brush.empty()) ? this.brushYearStart : Math.ceil(y(b[0])),
         localBrushYearEnd = (brush.empty()) ? this.brushYearEnd : Math.ceil(y(b[1]));
 
     // Snap to rect edge
-    d3.select("g.brush").call((brush.empty()) ? brush.clear() : brush.extent([y.invert(localBrushYearStart), y.invert(localBrushYearEnd)]));
+    d3.select("g.brush").call((this.brush.empty()) ? brush.clear() : this.brush.extent([this.y.invert(localBrushYearStart), this.y.invert(localBrushYearEnd)]));
 
     // Fade all years in the histogram not within the brush
     d3.selectAll("rect.bar").style("opacity", function(d, i) {
       return d.x >= localBrushYearStart && d.x < localBrushYearEnd || brush.empty() ? "1" : ".4";
     });
+    self.event_handler.brush_changed(localBrushYearStart, localBrushYearEnd)
 }
 
 BrushView.prototype.brushend = function()
 {
-    // var self = this,
+    var self = this
     //     y = self.y,
     //     x = self.x;
-    b = brush.extent();
+    b = this.brush.extent();
     var localBrushYearStart = (brush.empty()) ? this.brushYearStart : Math.ceil(y(b[0])),
         localBrushYearEnd = (brush.empty()) ? this.brushYearEnd : Math.floor(y(b[1]));
 
@@ -242,21 +261,16 @@ BrushView.prototype.brushend = function()
   // styleOpacity();
 
   // Update start and end years in upper right-hand corner of the map
-  d3.select("#brushYears").text(localBrushYearStart == localBrushYearEnd ? localBrushYearStart : localBrushYearStart + " - " + localBrushYearEnd);
-
+  d3.select("#brushYears").text(localBrushYearStart == localBrushYearEnd ? localBrushYearStart : localBrushYearStart + " &ndash; " + localBrushYearEnd);
+  self.event_handler.brush_changed(localBrushYearStart, localBrushYearEnd)
 }
 
 BrushView.prototype.resetBrush = function()
 {
-  brush
-    .clear()
-    .event(d3.select(".brush"));
+    console.log("resetBrush")
+    this.brush
+        .clear()
+        .event(d3.select(".brush"));
 }
 
-BrushView.prototype.setData = function(value)
-{
-    var self = this;
-    self.data = value;
-    // self.update(self.data);
-}
 
