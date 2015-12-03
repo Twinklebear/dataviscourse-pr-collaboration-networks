@@ -40,15 +40,20 @@ MainView.prototype.getArticlesCount = function(){
 
 MainView.prototype.loadJson = function(datapath, journal){
 	var self = this;
-	var datapath = 'data2/'
+	var datapath = 'data_all/curated_data/'
 	d3.loadData()
-		.json("sigapl", datapath+"sigapl.json")
+		.json("tist", datapath+"tist_curated.json")
 		.json("authors", datapath+"authors.json")
-		.json("teco", datapath+"teco.json")
+		.json("teco", datapath+"teco_curated.json")
 		.onload(function(data){
-			journal1 = data['sigapl'];
+			journal1 = data['tist'];
 			journal2 = data['teco'];
 			authors = data['authors'];
+			journals = {
+				tist: journal1,
+				teco: journal2
+			};
+			selection_view = new SelectionDetail(journals, authors);
 			self.update()
 		});
 }
