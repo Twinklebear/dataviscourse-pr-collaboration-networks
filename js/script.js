@@ -9,8 +9,8 @@ window.onload = function() {
 	// 		passed the journal index and author JSON data
 	//
 	// - journal_selected: Called when a journal has been selected and its data has loaded
-	// 		the callee is passed the JSON objects with the journal info, clusters and csv of stats
-	// 		(TODO: what will the csv load too? an array?)
+	// 		the callee is passed the JSON objects with the journal info, clusters and array of objects
+	// 		containing publications per year { count: "count", year, "year" }
 	//
 	// - author_selected: Called when an author is selected, the callee is passed the author id
 	//
