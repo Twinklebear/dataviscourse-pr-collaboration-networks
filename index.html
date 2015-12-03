@@ -70,9 +70,39 @@ line.link {
 		<div class="col-md-8" id="bundle_nodes">
 			<p>Double-click a graph to see nodes in a graph</p>
 		</div>
-		<div class="col-md-4">
-			<h4>Selection info goes here</h4>
-			<div id="author_info3">
+		<div class="col-md-4" style="height:630px;overflow-y:scroll;">
+			<label for="journal_picker">Select a journal:</label>
+			<select id="journal_picker">
+			</select>
+			<div id="author_info">
+				<h4 id="author_name">author name</h4>
+				<p id="author_affiliation">author affilation</p>
+				<div id="author_detail_list">
+					<b>Frequent Collaborators:</b>
+					<ul id="author_collaborators_list">
+						<li>collaborator</li>
+						<li>collaborator</li>
+					</ul>
+					<b>Publications:</b>
+					<ul id="author_papers_list">
+						<li>paper</li>
+						<li>paper</li>
+						<li>paper</li>
+					</ul>
+				</div>
+			</div>
+			<div id="journal_info">
+				<h4 id="journal_title">journal title</h4>
+				<p id="journal_article_count">article count</p>
+				<p id="journal_years">journal year active</p>
+				<div id="journal_papers_div">
+					<b>Publications:</b>
+					<ul id="journal_papers_list">
+						<li>paper</li>
+						<li>paper</li>
+						<li>paper</li>
+					</ul>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -81,6 +111,7 @@ line.link {
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
 		integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	<script src="js/selection_detail.js"></script>
 	<script src="js/script.js"></script>
 </body>
 </html>

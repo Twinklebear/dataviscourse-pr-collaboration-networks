@@ -186,7 +186,7 @@ function visualizeit(){
 
 function directedGraph(){
 	var width = 960,
-	height = 500;
+		height = 500;
 
 	var color = d3.scale.category20();
 
@@ -256,7 +256,8 @@ function directedGraph(){
 }
 
 function bundleNodes(){
-	var height = 600,     // svg height
+	var width = 600,
+		height = 600,     // svg height
 		dr = 4,      // default point radius
 		off = 15,    // cluster hull offset
 		expand = {}, // expanded clusters
@@ -584,22 +585,30 @@ function loadJson2(){
 }
 
 function loadJson(){
-	datapath = 'data2/'
+	datapath = 'data_curated/'
 	d3.loadData()
-		.json("sigapl", datapath+"sigapl.json")
-		.json("authors", datapath+"authors.json")
-		.json("teco", datapath+"teco.json")
+		.json("sigplan", datapath + "sigplan_curated.json")
+		.json("teco", datapath + "teco_curated.json")
+		.json("tissec", datapath + "tissec_curated.json")
+		.json("tist", datapath + "tist_curated.json")
+		.json("authors", datapath + "authors.json")
 		.onload(function(data){
-			journal1 = data['sigapl'];
+			journals = {
+				sigplan: data["sigplan"],
+				teco: data["teco"],
+				tissec: data["tissec"],
+				tist: data["tist"]
+			};
+			journal1 = data['tist'];
 			journal2 = data['teco'];
 			authors = data['authors'];
+			selection_detail = new SelectionDetail(journals, authors);
 			// visualizeit()
 			// directedGraph()
 			bundleNodes()
 		});
 }
 window.onload = function(){	
-	
 	loadJson();
 }
 
