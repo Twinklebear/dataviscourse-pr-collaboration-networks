@@ -104,45 +104,75 @@ line.link {
 
 </style>
 <body>
-	<div class="container">
-		TODO: container or container fluid? having it as a container might be a bit too small
-		<h3>CS6630 Project: Collaboration Networks</h3>
-		<div id="member_info">
-			members: Kevin Wall, Mike Liu, Will Usher
-		</div>
-    <hr/>
-  	<div>
-      <form style="padding: 0px 20px 20px 20px">
-        <div> Selcted Journal: 
-          <select id="journalSets" onchange="updateJournal()">
-              <option value="sigplan">SIGPLAN Notices</option>
-              <option value="teco">ACM Trans. Economics and Comput.</option>
-              <option value="tissec">ACM Trans. Inf. Syst. Secur.</option>
-              <option value="tist">ACM Trans. Inf. Syst. Secur.</option>
-              <option></option>
-          </select>
-        </div>
-      </form>
-    </div>
+<div class="container">
+	TODO: container or container fluid? having it as a container might be a bit too small
+	<h3>CS6630 Project: Collaboration Networks</h3>
+	<div id="member_info">
+		members: Kevin Wall, Mike Liu, Will Usher
+	</div>
+	<hr/>
+	<div>
+		<form style="padding: 0px 20px 20px 20px">
+			TODO: This will be swapped for the journal picker below
+			<div> Selcted Journal: 
+				<select id="journalSets" onchange="updateJournal()">
+					<option value="sigplan">SIGPLAN Notices</option>
+					<option value="teco">ACM Trans. Economics and Comput.</option>
+					<option value="tissec">ACM Trans. Inf. Syst. Secur.</option>
+					<option value="tist">ACM Trans. Inf. Syst. Secur.</option>
+					<option></option>
+				</select>
+			</div>
+		</form>
+	</div>
 
-		<div class="col-md-8" id="bundle_nodes">
-		</div>
-
-		<div class="col-md-4">
-			<h4>Selection info goes here</h4>
-			<div id="author_info3">
+	<div class="col-md-8" id="bundle_nodes">
+	</div>
+	<div class="col-md-4" style="height:630px;overflow-y:scroll;">
+		<label for="journal_picker">Select a journal:</label>
+		<select id="journal_picker">
+		</select>
+		<div id="author_info">
+			<h4 id="author_name">author name</h4>
+			<p id="author_affiliation">author affilation</p>
+			<div id="author_detail_list">
+				<b>Frequent Collaborators:</b>
+				<ul id="author_collaborators_list">
+					<li>collaborator</li>
+					<li>collaborator</li>
+				</ul>
+				<b>Publications:</b>
+				<ul id="author_papers_list">
+					<li>paper</li>
+					<li>paper</li>
+					<li>paper</li>
+				</ul>
 			</div>
 		</div>
-
-    <div class="col-md-12" id="brush">
-    </div>
+		<div id="journal_info">
+			<h4 id="journal_title">journal title</h4>
+			<p id="journal_article_count">article count</p>
+			<p id="journal_years">journal year active</p>
+			<div id="journal_papers_div">
+				<b>Publications:</b>
+				<ul id="journal_papers_list">
+					<li>paper</li>
+					<li>paper</li>
+					<li>paper</li>
+				</ul>
+			</div>
+		</div>
 	</div>
+	<div class="col-md-12" id="brush">
+	</div>
+</div>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
 		integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-  <script src="js/loadData.js"></script>
+	<script src="js/loadData.js"></script>
+	<script src="js/selection_detail.js"></script>
 	<script src="js/script.js"></script>
   <script src="js/brush.js"></script>
   <script>

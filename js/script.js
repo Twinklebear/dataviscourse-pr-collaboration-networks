@@ -394,4 +394,3 @@ MainView.prototype.update = function(){
 	}
 }
 
-
