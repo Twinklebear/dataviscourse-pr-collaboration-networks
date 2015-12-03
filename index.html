@@ -147,8 +147,8 @@ line.link {
   <script src="js/brush.js"></script>
   <script>
   var datapath = "data_all/curated_data/";
-  brushYearStart = 1960;
-  brushYearEnd = 2015;
+  yearStart = 1960;
+  yearEnd = 2015;
 
   d3.json(datapath+"journal_index.json", function(err, journals) {
     maindata = journals;
@@ -157,12 +157,14 @@ line.link {
     journal_name = document.getElementById("journalSets").value;
     mainview.loadJson(datapath, maindata[journal_name]);
     mainview.loadData(datapath, maindata[journal_name]);
-    // brushview.loadData();
+    brushview.loadData(datapath, maindata[journal_name]);
   });
 
   function updateJournal(){
+    brushview.resetBrush();
     journal_name = document.getElementById("journalSets").value;
     mainview.loadData(datapath, maindata[journal_name]);
+    brushview.loadData(datapath, maindata[journal_name]);
   }
   </script>
 </body>
