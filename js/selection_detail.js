@@ -12,7 +12,7 @@ var SelectionDetail = function(journals, authors) {
 		'</div>' +
 		'<div class="panel-body">' +
 			'<label for="authors">Authors:</label>' +
-			'<p id="authors"></p>' +
+			'<ul id="authors"></ul>' +
 			'<label for="year">Year Published:</label>' +
 			'<p id="year"></p>' +
 			'<a id="doi" href=""></a>' +
@@ -35,15 +35,12 @@ var SelectionDetail = function(journals, authors) {
 		}
 	}
 	// Start by selecting the first journal
-	//this.select_journal(journals[Object.keys(journals)[0]]);
+	this.select_journal(journals[Object.keys(journals)[0]]);
 	var self = this;
 	// TODO: We should also emit an event that the d3 visualization can pick up
 	this.journal_picker.on("change", function(){
 		self.select_journal(self.journals[this.value]);
 	});
-
-	// Debugging: pick an author
-	this.select_author(authors[400]);
 }
 // Update the selection detail panel to display information about the
 // journal selected by the user
@@ -93,20 +90,18 @@ SelectionDetail.prototype.select_author = function(author) {
 SelectionDetail.prototype.update_article = function(element, article) {
 	element.select("#title").html(article.title);
 	var self = this;
-	var author_list = element.select("#authors").selectAll("a")
+	var author_list = element.select("#authors").selectAll("li")
 		.data(article.authors);
 	author_list.exit().remove();
-	author_list.enter().append("a")
-		.attr("href", "javascript:void(0)");
-	author_list.on("click", function(d) {
+	author_list.enter().append("li")
+		.append("a")
+		.attr("href", "javascript:void(0)")
+	author_list.select("a")
+		.on("click", function(d) {
 			self.select_author(self.authors[d]);
 		})
 		.text(function(d, i) {
-			if (i + 1 < article.authors.length) {
-				return self.authors[d].name + ", ";
-			} else {
-				return self.authors[d].name;
-			}
+			return self.authors[d].name;
 		});
 	element.select("#year").html(article.year);
 	element.select("#doi").html(article.doi)
