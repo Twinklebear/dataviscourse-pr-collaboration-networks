@@ -17,6 +17,17 @@
 	</head>
 <style>
 
+svg {
+  border: 1px solid #ccc;
+}
+body {
+  font: sans-serif;
+}
+
+#brush{
+  padding-bottom: 50px;
+}
+/*graph*/
 .node {
   stroke: #fff;
   stroke-width: 1.5px;
@@ -30,12 +41,7 @@
 .interactive_window{
   padding-bottom: 20px;
 }
-svg {
-  border: 1px solid #ccc;
-}
-body {
-  font: sans-serif;
-}
+
 circle.node {
   fill: lightsteelblue;
   stroke: #555;
@@ -55,6 +61,47 @@ line.link {
   pointer-events: none;
 }
 
+/*brush*/
+.barchart {
+  z-index: 30;
+  display: block;
+  visibility: visible;
+  position: relative;
+  padding-top: 15px;
+  margin-top: 15px;
+
+}
+
+.axis {
+  font: 10px sans-serif;
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.x.axis path {
+  display: none;
+}
+
+.resize path {
+  fill: #666;
+  fill-opacity: .8;
+  stroke: #000;
+  stroke-width: 1.5px;
+}
+
+.brush .extent {
+  stroke: #fff;
+  stroke-opacity: .6;
+  stroke-width: 2px;
+  fill-opacity: .1;
+  shape-rendering: crispEdges;
+}
+
 </style>
 <body>
 	<div class="container">
@@ -63,25 +110,61 @@ line.link {
 		<div id="member_info">
 			members: Kevin Wall, Mike Liu, Will Usher
 		</div>
-		<div>
-			<a href="index.html">Home</a>
-			<a href="clustered.html">Clustered Network</a>
-		</div>
+    <hr/>
+  	<div>
+      <form style="padding: 0px 20px 20px 20px">
+        <div> Selcted Journal: 
+          <select id="journalSets" onchange="updateJournal()">
+              <option value="sigplan">SIGPLAN Notices</option>
+              <option value="teco">ACM Trans. Economics and Comput.</option>
+              <option value="tissec">ACM Trans. Inf. Syst. Secur.</option>
+              <option value="tist">ACM Trans. Inf. Syst. Secur.</option>
+              <option></option>
+          </select>
+        </div>
+      </form>
+    </div>
+
 		<div class="col-md-8" id="bundle_nodes">
-			<p>Double-click a graph to see nodes in a graph</p>
 		</div>
+
 		<div class="col-md-4">
 			<h4>Selection info goes here</h4>
 			<div id="author_info3">
 			</div>
 		</div>
+
+    <div class="col-md-12" id="brush">
+    </div>
 	</div>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 	<!-- Latest compiled and minified JavaScript -->
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
 		integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  <script src="js/loadData.js"></script>
 	<script src="js/script.js"></script>
+  <script src="js/brush.js"></script>
+  <script>
+  var datapath = "data_all/curated_data/";
+  brushYearStart = 1960;
+  brushYearEnd = 2015;
+
+  d3.json(datapath+"journal_index.json", function(err, journals) {
+    maindata = journals;
+    brushview = new BrushView();
+    mainview = new MainView();
+    journal_name = document.getElementById("journalSets").value;
+    mainview.loadJson(datapath, maindata[journal_name]);
+    mainview.loadData(datapath, maindata[journal_name]);
+    // brushview.loadData();
+  });
+
+  function updateJournal(){
+    journal_name = document.getElementById("journalSets").value;
+    mainview.loadData(datapath, maindata[journal_name]);
+  }
+  </script>
 </body>
 </html>
 
