@@ -130,17 +130,62 @@ SelectionDetail.prototype.select_author = function(author, article_filter) {
 	this.author_info_div.select("#author_name").text(author.name);
 	this.author_info_div.select("#author_affiliation").text(author.affiliation);
 
-	// Clear any collaborators that were shown previously and replace them
-	// with this author's collaborators
-	var collaborators = this.author_info_div.select("#author_collaborators_list");
-	collaborators.html("");
-
 	// Select and update the author's article panels, adding/removing as needed
 	var publications = this.author_info_div.select("#author_papers_list");
 	var articles = author.articles;
 	if (article_filter !== undefined){
 		articles = articles.filter(article_filter);
 	}
+
+	// Build list of frequent collaborators for this author
+	var collaborators = {};
+	for (var i = 0; i < articles.length; ++i){
+		var authors = articles[i].authors;
+		for (var j = 0; j < authors.length; ++j){
+			if (authors[j] != author.id){
+				if (!collaborators[authors[j]]){
+					collaborators[authors[j]] = 1;
+				} else {
+					collaborators[authors[j]] += 1;
+				}
+			}
+		}
+	}
+	// A bit ugly here, dump it into an array now so we can sort by the count in
+	// descending order
+	collaborators = Object.keys(collaborators).map(function(k) {
+		return [k, collaborators[k]];
+	});
+	collaborators.sort(function(a, b) {
+		return b[1] - a[1];
+	});
+	// We count frequent collaborators as the top 25% of people they worked with
+	// TODO: Better method. Pick those who've been collaborated with more than the average
+	var num_collaborators = Math.ceil(0.25 * collaborators.length);
+	// Take all people who have greater or equal to number of collaborations as the last
+	// most frequent collaborator
+	collaborators = collaborators.filter(function(d, i) {
+		return i <= num_collaborators;
+	});
+
+	var self = this;
+	// Clear any collaborators that were shown previously and replace them
+	// with this author's collaborators
+	var collaborator_list = this.author_info_div.select("#author_collaborators_list");
+	var frequent_collaborators = collaborator_list.selectAll("li")
+		.data(collaborators);
+	frequent_collaborators.exit().remove();
+	frequent_collaborators.enter().append("li")
+		.append("a")
+		.attr("href", "javascript:void(0)");
+	frequent_collaborators.select("a")
+		.on("click", function(d) {
+			self.event_handler.author_selected(parseInt(d[0]));
+		})
+		.text(function(d, i) {
+			return self.authors[parseInt(d[0])].name;
+		});
+
 	var article_list = publications.selectAll(".panel")
 		.data(articles);
 	article_list.exit().remove();

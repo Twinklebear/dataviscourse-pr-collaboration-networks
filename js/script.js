@@ -48,7 +48,6 @@ window.onload = function() {
 				.attr("value", "index");
 			// Setup the journal picker
 			for (var key in index){
-				// TODO: Some stupid shit going on with name of TIST not updating
 				if (index.hasOwnProperty(key)){
 					var j = index[key];
 					console.log("appending journal " + j.title);
