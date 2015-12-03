@@ -165,6 +165,10 @@ line.link {
 	</div>
 	<div class="col-md-12" id="brush">
 	</div>
+  <div id="bundle_nodes2">
+  </div>
+  <div id="author_info3">
+  </div>
 </div>
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -195,6 +199,31 @@ line.link {
     journal_name = document.getElementById("journalSets").value;
     mainview.loadData(datapath, maindata[journal_name]);
     brushview.loadData(datapath, maindata[journal_name]);
+  }
+
+  function brushmove()
+  {
+      y.domain(x.range()).range(x.domain());
+      b = brush.extent();
+
+      var localBrushYearStart = (brush.empty()) ? brushYearStart : Math.ceil(y(b[0])),
+          localBrushYearEnd = (brush.empty()) ? brushYearEnd : Math.ceil(y(b[1]));
+      d3.select("g.brush").call((brush.empty()) ? brush.clear() : brush.extent([y.invert(localBrushYearStart), y.invert(localBrushYearEnd)]));
+      d3.selectAll("rect.bar").style("opacity", function(d, i) {
+        return d.x >= localBrushYearStart && d.x < localBrushYearEnd || brush.empty() ? "1" : ".4";
+      });
+  }
+
+  function brushend()
+  {
+      b = brush.extent();
+      var localBrushYearStart = (brush.empty()) ? brushYearStart : Math.ceil(y(b[0])),
+          localBrushYearEnd = (brush.empty()) ? brushYearEnd : Math.floor(y(b[1]));
+
+      d3.selectAll("rect.bar").style("opacity", function(d, i) {
+        return d.x >= localBrushYearStart && d.x <= localBrushYearEnd || brush.empty() ? "1" : ".4";
+      });
+      d3.select("#brushYears").text(localBrushYearStart == localBrushYearEnd ? localBrushYearStart : localBrushYearStart + " - " + localBrushYearEnd);
   }
   </script>
 </body>

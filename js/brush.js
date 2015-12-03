@@ -161,8 +161,8 @@ BrushView.prototype.update = function(data){
     // Draw the brush
     brush = d3.svg.brush()
         .x(x)
-        .on("brush", self.brushmove)
-        .on("brushend", self.brushend);
+        .on("brush", brushmove)
+        .on("brushend", brushend);
 
     var arc = d3.svg.arc()
       .outerRadius(height / 15)
