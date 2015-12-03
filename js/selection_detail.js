@@ -1,10 +1,10 @@
 // SelectionDetail keeps the selection detail info panel up to date
 // use select_journal and select_author to update the display
 // with what the user has currently selected.
-var SelectionDetail = function(journals, authors) {
+// TODO: This should just take an event handler
+var SelectionDetail = function(event_handler) {
 	this.author_info_div = d3.select("#author_info");
 	this.journal_info_div = d3.select("#journal_info");
-	this.journal_picker = d3.select("#journal_picker");
 
 	this.article_html =
 		'<div class="panel-heading">' +
@@ -18,33 +18,31 @@ var SelectionDetail = function(journals, authors) {
 			'<a id="doi" href=""></a>' +
 		'</div>';
 
-	this.journals = journals;
-	this.authors = authors;
-
-	// Hide the author info div as it's not currently being shown
-	this.author_info_div.style("display", "none");
-	// Also hide the journal info since we're not showing a journal either
-	this.journal_info_div.style("display", "none");
-	// Append the journals in the list to the picker
-	for (var key in journals){
-		if (journals.hasOwnProperty(key)){
-			var j = journals[key];
-			console.log("appending journal " + j.title);
-			this.journal_picker.append("option").html(j.title)
-				.attr("value", j.short_name);
-		}
-	}
-	// Start by selecting the first journal
-	this.select_journal(journals[Object.keys(journals)[0]]);
+	// Setup ourself to listen for events we want
+	this.event_handler = event_handler;
 	var self = this;
-	// TODO: We should also emit an event that the d3 visualization can pick up
-	this.journal_picker.on("change", function(){
-		self.select_journal(self.journals[this.value]);
+	event_handler.on("index_loaded.selection_detail", function(index, authors) {
+		self.index_loaded(index, authors);
 	});
+	event_handler.on("journal_selected.selection_detail", function(journal, clusters, stats) {
+		self.select_journal(journal);
+	});
+	event_handler.on("author_selected.selection_detail", function(author_id) {
+		self.author_selected(author_id);
+	});
+	event_handler.on("brush_changed.selection_detail", function(start, end) {
+		self.select_years(start, end);
+	});
+}
+SelectionDetail.prototype.index_loaded = function(index, authors) {
+	this.authors = authors;
+	console.log("will show index summary");
+	console.log(index);
 }
 // Update the selection detail panel to display information about the
 // journal selected by the user
 SelectionDetail.prototype.select_journal = function(journal) {
+	this.journal = journal;
 	this.journal_info_div.style("display", "");
 	this.author_info_div.style("display", "none");
 
@@ -62,6 +60,9 @@ SelectionDetail.prototype.select_journal = function(journal) {
 		.html(this.article_html);
 	var self = this;
 	article_list.each(function(d) { self.update_article(d3.select(this), d); });
+}
+SelectionDetail.prototype.author_selected = function(author_id) {
+	this.select_author(this.authors[author_id]);
 }
 // Update the selection detail panel to display information about the
 // author currently selected by the user.
@@ -98,7 +99,7 @@ SelectionDetail.prototype.update_article = function(element, article) {
 		.attr("href", "javascript:void(0)")
 	author_list.select("a")
 		.on("click", function(d) {
-			self.select_author(self.authors[d]);
+			self.event_handler.author_selected(d);
 		})
 		.text(function(d, i) {
 			return self.authors[d].name;
@@ -106,5 +107,8 @@ SelectionDetail.prototype.update_article = function(element, article) {
 	element.select("#year").html(article.year);
 	element.select("#doi").html(article.doi)
 		.attr("href", article.doi);
+}
+SelectionDetail.prototype.select_years = function(start, end) {
+	console.log("TODO: WILL selection detail select years");
 }
 
