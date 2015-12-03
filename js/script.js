@@ -23,8 +23,12 @@ window.onload = function() {
 	var journal_picker = d3.select("#journal_picker");
 	journal_picker.on("change", function(){
 		console.log("Picking " + this.value);
-		if (this.value !== "empty"){
+		// If we pick a journal then go to it, if we pick the empty one
+		// return to the journal index
+		if (this.value !== "index"){
 			load_journal(index[this.value], dispatcher);
+		} else {
+			dispatcher.index_loaded(index, authors);
 		}
 	});
 
@@ -40,11 +44,10 @@ window.onload = function() {
 			index = data['index'];
 			authors = data['authors'];
 			// Append a no journal selected option
-			journal_picker.append("option").html("Select a journal")
-				.attr("value", "empty");
+			journal_picker.append("option").html("Journal Index")
+				.attr("value", "index");
 			// Setup the journal picker
 			for (var key in index){
-				// TODO: Some stupid shit going on with name of TIST not updating
 				if (index.hasOwnProperty(key)){
 					var j = index[key];
 					console.log("appending journal " + j.title);

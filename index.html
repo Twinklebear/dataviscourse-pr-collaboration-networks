@@ -112,6 +112,7 @@ line.link {
 	</div>
 	<hr/>
 	<div>
+		<label for="journal_picker">Select a Journal:</label>
 		<select id="journal_picker">
 		</select>
 	</div>
@@ -119,11 +120,16 @@ line.link {
 	<div class="col-md-8" id="bundle_nodes">
 	</div>
 	<div class="col-md-4" style="height:630px;overflow-y:scroll;">
+		<div id="journal_index">
+			<h3>Available Journals</h3>
+			<div id="journal_index_list">
+			</div>
+		</div>
 		<div id="author_info">
 			<h3 id="author_name"></h3>
 			<label for="author_affiliation">Affiliation</label>
 			<p id="author_affiliation"></p>
-			<h4>Frequent Collaborators:</h4> Clicking one should select them
+			<h4>Frequent Collaborators:</h4>
 			<ul id="author_collaborators_list">
 			</ul>
 			<h4>Publications:</h4>
