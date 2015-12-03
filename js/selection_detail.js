@@ -6,6 +6,16 @@ var SelectionDetail = function(journals, authors) {
 	this.journal_info_div = d3.select("#journal_info");
 	this.journal_picker = d3.select("#journal_picker");
 
+	this.article_html =
+		'<div class="panel-heading">' +
+			'<h3 id="title" class="panel-title">Article Title</h3>' +
+		'</div>' +
+		'<div class="panel-body">' +
+			'<p id="authors">Authors: Clicking an author should select them</p>' +
+			'<p id="year">Year:</p>' +
+			'<a id="doi" href="">Doi:</a>' +
+		'</div>';
+
 	this.journals = journals;
 	this.authors = authors;
 
@@ -31,7 +41,7 @@ var SelectionDetail = function(journals, authors) {
 	});
 
 	// Debugging: pick an author
-	//this.select_author(authors[400]);
+	this.select_author(authors[400]);
 }
 // Update the selection detail panel to display information about the
 // journal selected by the user
@@ -43,15 +53,15 @@ SelectionDetail.prototype.select_journal = function(journal) {
 	this.journal_info_div.select("#journal_article_count").text(journal.num_articles);
 	this.journal_info_div.select("#journal_years").html(journal.first_year + " &ndash; " + journal.latest_year);
 
-	// Clear any publicatios that were shown previously and replace them with this journal's publications
+	// Select and update the journals's article panels, adding/removing as needed
 	var publications = this.journal_info_div.select("#journal_papers_list");
-	publications.html("");
-	for (var i = 0; i < journal.articles.length; ++i){
-		var article = journal.articles[i];
-		var item = publications.append("li");
-		item.html(article.title)
-			.append("a").attr("href", article.doi).html(article.doi);
-	}
+	var article_list = publications.selectAll(".panel")
+		.data(journal.articles);
+	article_list.exit().remove();
+	article_list.enter().append("div")
+		.attr("class", "panel panel-default")
+		.html(this.article_html);
+	article_list.each(function(d) { update_article(d3.select(this), d); });
 }
 // Update the selection detail panel to display information about the
 // author currently selected by the user.
@@ -66,17 +76,21 @@ SelectionDetail.prototype.select_author = function(author) {
 	var collaborators = this.author_info_div.select("#author_collaborators_list");
 	collaborators.html("");
 
-	// Clear any publications that were shown previously and replace them
-	// with this author's publications
+	// Select and update the author's article panels, adding/removing as needed
 	var publications = this.author_info_div.select("#author_papers_list");
-	publications.html("");
-	// TODO: instead of a ul/li we should have a list of divs that we stamp out
-	// with info on the articles
-	for (var i = 0; i < author.articles.length; ++i){
-		var article = author.articles[i];
-		var item = publications.append("li");
-		item.html(article.title)
-			.append("a").attr("href", article.doi).html(article.doi);
-	}
+	var article_list = publications.selectAll(".panel")
+		.data(author.articles);
+	article_list.exit().remove();
+	article_list.enter().append("div")
+		.attr("class", "panel panel-default")
+		.html(this.article_html);
+	article_list.each(function(d) { update_article(d3.select(this), d); });
+}
+function update_article(element, article) {
+	element.select("#title").html(article.title);
+	element.select("#authors").html("authors go here");
+	element.select("#year").html(article.year);
+	element.select("#doi").html(article.doi)
+		.attr("href", article.doi);
 }
 
