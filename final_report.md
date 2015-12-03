@@ -8,7 +8,7 @@ Authors: Kevin Wall, Mike Liu, Will Usher
 
 #### Networks
 
-[pictures of nodetrix]
+[pictures of nodetrix] [citation]
 One of our members attended a talk by Jean-Daniel Fekete on visualization graphs using matrices (NodeTrix). 
 This gave rise to the idea of using hierarchical nodes to represent dense subgraphs instead of small matrices. 
 
@@ -68,6 +68,8 @@ Meanwhile, we were also developing a method of finding dense subgraphs within th
 some reasearch, we found a approximate algorithm for finding dense subgraphs whose time complexity was linear [citation].
 We implemented this, and were able to begin generating json files that described clusters in the data.
 
+[discussion of early development of visualization]
+
 ### Milestone Report
 
 [milestone report document]
@@ -83,20 +85,76 @@ we created a script that moved between our json file format and gml. This allowe
 with Gephi, but also edit them with gephi and then turn them back into json files. This allowed us to create curated
 collaboration networks with a manageable number of nodes. 
 
+[discussion of final development of visualization]
+
 ## Process Book
 
 ### Overview and Motivation
 
+[logo/screenshot]
+[name] is an interactive visualization of author collaboration networks drawn from several ACM journals. It demonstrates
+a way to effectively visualize graphs that contain dense subgraphs without breaking with the visual langauge of nodes
+and edges.
+
 ### Related Work
+
+Our work is most influenced by NodeTrix, which presents a method of managing dense subgraphs by using small matrices to
+represent them. Matrices provide a compact and informative way of communicating the connections in a dense subgraph, and
+by aggregating the connections flowing out of the subgraph, the resulting node-edge diagrams is much more visually
+managable. 
+
+[other work?]
 
 ### Questions
 
+The main question we wanted to answer is whether dense subgraphs could be specially visualized to make the overall graph
+more readable while maintaining the language of nodes and edges, both macroscopically (in terms of the whole graph), and
+microscopically (in terms of the dense subgraph itself). 
+
+[any other questions]
+
+[how did this question evolve and what new questions came up]
+
 ### Data
+
+Our main source of data was the DBLP database, which contains a large amount of data on various academic journals, articles, 
+and authors. This data is in a structured format and available for download and thus was easily accessable to us and did
+not require any special effort beyond filtering it down. Once it had been transformed into collaboration networks, however,
+the resulting networks required some more involved processing. This processing included finding dense subgraphs, connected
+subgraphs, and manual cleanup, removing connected subgraphs that were too small or too dense to be interesting or useful for
+visualization. 
+
+In addition to DBLP, we also scraped author affiliations from publication databases that were linked by the DBLP entries.
+This proved to fairly involved as well as inconsistant in the case on some of the websites, and as a result, we ended up
+using only one of our initial prospects. This limited the journals we could use, but not so much as to be problematic. 
 
 ### Exploratory Data Analysis
 
+[picture of gephi screenshot with clusters draw on]
+Our main tool for viewing our data before we had a custom visualization method was Gephi. We used this software extensively 
+to judge the qualities of the prospective collaboration network, as well as the quality of our densest subgraph implementation. 
+There were many graphs that we viewedwith Gephi and were able to immediately determine that we did not want to continue working 
+with them either because they were far too dense, large, or not dense enough, their largest subgraphs only being a handful of 
+nodes. We also used Gephi to evaluate experimental methods of simplifying dense graphs.
+
+[picture of dm network before/after, tog/tvcg network before/after]
+
+These methods in the end did not result in new visualizations due to the size of the graph still being an issue, but Gephi
+helped us us come to the final determination faster. 
+
+We also of course used our own visualizations to explore the data. The main thing this helped with was determining our limits.
+Before our initial visualizations, we did not know either our performance limitations or visual space limitations. This
+information helped guide our data a aquisition and methods themselves. 
+
 ### Design Evolution
+
+[discussion]
 
 ### Implementation
 
-### Evalutation
+[discussion]
+
+### Evaluation
+
+[discussion]
+
