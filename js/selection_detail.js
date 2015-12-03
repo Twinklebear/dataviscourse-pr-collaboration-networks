@@ -11,9 +11,11 @@ var SelectionDetail = function(journals, authors) {
 			'<h3 id="title" class="panel-title">Article Title</h3>' +
 		'</div>' +
 		'<div class="panel-body">' +
-			'<p id="authors">Authors: Clicking an author should select them</p>' +
-			'<p id="year">Year:</p>' +
-			'<a id="doi" href="">Doi:</a>' +
+			'<label for="authors">Authors:</label>' +
+			'<p id="authors"></p>' +
+			'<label for="year">Year Published:</label>' +
+			'<p id="year"></p>' +
+			'<a id="doi" href=""></a>' +
 		'</div>';
 
 	this.journals = journals;
@@ -33,7 +35,7 @@ var SelectionDetail = function(journals, authors) {
 		}
 	}
 	// Start by selecting the first journal
-	this.select_journal(journals[Object.keys(journals)[0]]);
+	//this.select_journal(journals[Object.keys(journals)[0]]);
 	var self = this;
 	// TODO: We should also emit an event that the d3 visualization can pick up
 	this.journal_picker.on("change", function(){
@@ -61,7 +63,8 @@ SelectionDetail.prototype.select_journal = function(journal) {
 	article_list.enter().append("div")
 		.attr("class", "panel panel-default")
 		.html(this.article_html);
-	article_list.each(function(d) { update_article(d3.select(this), d); });
+	var self = this;
+	article_list.each(function(d) { self.update_article(d3.select(this), d); });
 }
 // Update the selection detail panel to display information about the
 // author currently selected by the user.
@@ -84,11 +87,27 @@ SelectionDetail.prototype.select_author = function(author) {
 	article_list.enter().append("div")
 		.attr("class", "panel panel-default")
 		.html(this.article_html);
-	article_list.each(function(d) { update_article(d3.select(this), d); });
+	var self = this;
+	article_list.each(function(d) { self.update_article(d3.select(this), d); });
 }
-function update_article(element, article) {
+SelectionDetail.prototype.update_article = function(element, article) {
 	element.select("#title").html(article.title);
-	element.select("#authors").html("authors go here");
+	var self = this;
+	var author_list = element.select("#authors").selectAll("a")
+		.data(article.authors);
+	author_list.exit().remove();
+	author_list.enter().append("a")
+		.attr("href", "javascript:void(0)");
+	author_list.on("click", function(d) {
+			self.select_author(self.authors[d]);
+		})
+		.text(function(d, i) {
+			if (i + 1 < article.authors.length) {
+				return self.authors[d].name + ", ";
+			} else {
+				return self.authors[d].name;
+			}
+		});
 	element.select("#year").html(article.year);
 	element.select("#doi").html(article.doi)
 		.attr("href", article.doi);
