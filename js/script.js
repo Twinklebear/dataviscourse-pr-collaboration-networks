@@ -23,8 +23,12 @@ window.onload = function() {
 	var journal_picker = d3.select("#journal_picker");
 	journal_picker.on("change", function(){
 		console.log("Picking " + this.value);
+		// If we pick a journal then go to it, if we pick the empty one
+		// return to the journal index
 		if (this.value !== "empty"){
 			load_journal(index[this.value], dispatcher);
+		} else {
+			dispatcher.index_loaded(index, authors);
 		}
 	});
 
