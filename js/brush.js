@@ -1,20 +1,38 @@
 //similar to http://bl.ocks.org/emeeks/8899a3e8c31d4c5e7cfd
 
-function BrushView(){
+var BrushView = function(event_handler){
     var self = this;
     self.margin = {top: 20, right: 40, bottom: 40, left: 40};
     self.width = document.getElementById("brush").offsetWidth - self.margin.left - self.margin.right;
     self.height = 300 - self.margin.top - self.margin.bottom;
     // self.dislayYear = [];
 
-    brushYearStart = yearStart;
-    brushYearEnd = yearEnd;
+    this.brushYearStart = 1960;
+    this.brushYearEnd = 2015;
 
     // for(var i = brushYearStart; i<=brushYearEnd; i+=10)
     //     self.dislayYear.push(i);
     self.z = d3.scale.ordinal().range(["steelblue", "indianred"]);
-}
 
+	// TODO: Emit a brush changed event when the brush is changed
+	this.event_handler = event_handler;
+
+	// Setup ourself to listen for events we want
+	event_handler.on("journal_selected.brush_view", function(journal, clusters, stats) {
+		self.select_journal(stats);
+	});
+	event_handler.on("author_selected.brush_view", function(author_id) {
+		self.author_selected(author_id);
+	});
+}
+BrushView.prototype.select_journal = function(journal, clusters) {
+	// TODO: Reset brush
+	console.log("TODO: MIKE BrushView select journal");
+}
+BrushView.prototype.author_selected = function(author) {
+	// TODO: Reset brush
+	console.log("TODO: MIKE BrushView author selected");
+}
 BrushView.prototype.loadData = function(datapath, journal){
     var self = this;
     x = d3.scale.ordinal().rangeRoundBands([0, self.width-60], .5);
@@ -69,7 +87,7 @@ BrushView.prototype.update = function(data){
     brushYears.append("text")
         .attr("id", "brushYears")
         .classed("yearText", true)
-        .text(brushYearStart + " - " + brushYearEnd)
+        .text(this.brushYearStart + " - " + this.brushYearEnd)
         .attr("x", 35)
         .attr("y", 12);
 
@@ -193,8 +211,8 @@ BrushView.prototype.brushmove = function()
     y.domain(x.range()).range(x.domain());
     b = brush.extent();
 
-    var localBrushYearStart = (brush.empty()) ? brushYearStart : Math.ceil(y(b[0])),
-        localBrushYearEnd = (brush.empty()) ? brushYearEnd : Math.ceil(y(b[1]));
+    var localBrushYearStart = (brush.empty()) ? this.brushYearStart : Math.ceil(y(b[0])),
+        localBrushYearEnd = (brush.empty()) ? this.brushYearEnd : Math.ceil(y(b[1]));
 
     // Snap to rect edge
     d3.select("g.brush").call((brush.empty()) ? brush.clear() : brush.extent([y.invert(localBrushYearStart), y.invert(localBrushYearEnd)]));
@@ -211,8 +229,8 @@ BrushView.prototype.brushend = function()
     //     y = self.y,
     //     x = self.x;
     b = brush.extent();
-    var localBrushYearStart = (brush.empty()) ? brushYearStart : Math.ceil(y(b[0])),
-        localBrushYearEnd = (brush.empty()) ? brushYearEnd : Math.floor(y(b[1]));
+    var localBrushYearStart = (brush.empty()) ? this.brushYearStart : Math.ceil(y(b[0])),
+        localBrushYearEnd = (brush.empty()) ? this.brushYearEnd : Math.floor(y(b[1]));
 
     d3.selectAll("rect.bar").style("opacity", function(d, i) {
       return d.x >= localBrushYearStart && d.x <= localBrushYearEnd || brush.empty() ? "1" : ".4";

@@ -112,21 +112,8 @@ line.link {
 	</div>
 	<hr/>
 	<div>
-		<form style="padding: 0px 20px 20px 20px">
-			TODO: Replace the hard-coded journal picker with this one that is filled programmatically.
-			<label for="journal_picker">Select a journal:</label>
-			<select id="journal_picker">
-			</select>
-			<div> Selcted Journal: 
-				<select id="journalSets" onchange="updateJournal()">
-					<option value="sigplan">SIGPLAN Notices</option>
-					<option value="teco">ACM Trans. Economics and Comput.</option>
-					<option value="tissec">ACM Trans. Inf. Syst. Secur.</option>
-					<option value="tist">ACM Trans. Inf. Syst. Secur.</option>
-					<option></option>
-				</select>
-			</div>
-		</form>
+		<select id="journal_picker">
+		</select>
 	</div>
 
 	<div class="col-md-8" id="bundle_nodes">
@@ -166,30 +153,9 @@ line.link {
 		integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 	<script src="js/loadData.js"></script>
 	<script src="js/selection_detail.js"></script>
+	<script src="js/main_view.js"></script>
+	<script src="js/brush.js"></script>
 	<script src="js/script.js"></script>
-  <script src="js/brush.js"></script>
-  <script>
-  var datapath = "data_all/curated_data/";
-  yearStart = 1960;
-  yearEnd = 2015;
-
-  d3.json(datapath+"journal_index.json", function(err, journals) {
-    maindata = journals;
-    brushview = new BrushView();
-    mainview = new MainView();
-    journal_name = document.getElementById("journalSets").value;
-    mainview.loadJson(datapath, maindata[journal_name]);
-    mainview.loadData(datapath, maindata[journal_name]);
-    brushview.loadData(datapath, maindata[journal_name]);
-  });
-
-  function updateJournal(){
-    brushview.resetBrush();
-    journal_name = document.getElementById("journalSets").value;
-    mainview.loadData(datapath, maindata[journal_name]);
-    brushview.loadData(datapath, maindata[journal_name]);
-  }
-  </script>
 </body>
 </html>
 
