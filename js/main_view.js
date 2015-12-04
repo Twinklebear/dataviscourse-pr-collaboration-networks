@@ -1,18 +1,21 @@
 // TODO: Take journals, clusters, authors as params
 var MainView = function(event_handler){
 	// TODO: Emit an author selected event when an author is clicked.
-	this.event_handler = event_handler;
-	this.height = height = 600,     // svg height
-	this.width  = document.getElementById("bundle_nodes").offsetWidth,
-	this.div = d3.select("#bundle_nodes");
-	this.keypair = {};
 	// Setup ourself to listen for events we want
 	var self = this;
-
+	self.event_handler = event_handler;
+	self.height = height = 600,     // svg height
+	self.width  = document.getElementById("main_view").offsetWidth,
+	self.div = d3.select("#main_view");
+	self.keypair = {};
+	self.allCurated = [];
+	self.allClustered = [];
 	event_handler.on("index_loaded.main_view", function(index, authors) {
 		self.index_loaded(index, authors);
 	});
 	event_handler.on("journal_selected.main_view", function(journal, clusters, stats) {
+		self.allClustered = clusters;
+		self.allCurated   = journal;
 		self.select_journal(journal, clusters);
 	});
 	event_handler.on("author_selected.main_view", function(author_id) {
@@ -37,6 +40,12 @@ MainView.prototype.select_journal = function(journal, clusters) {
 }
 MainView.prototype.author_selected = function(author_id) {
 	//TODO: hight light the author in the nodes
+	//Get author data
+	var author = this.allAuthors[author_id];
+	console.log(author)
+	//Find its network
+	var collaberator = [];
+	//Display
 	console.log("TODO: MIKE MainView author selected");
 	console.log(author_id)
 	console.log(this.keypair[author_id])
@@ -47,14 +56,143 @@ MainView.prototype.brush_changed = function(start, end) {
 }
 
 MainView.prototype.displaySummaryGraph = function(summary_data){
-	//TODO setup Bubble Chart based on the volume of publication
-	console.log("TODO SummaryGraph")
-	console.log(summary_data)
+	var self = this;
+	var w = self.width,
+		h = self.height,
+		nodes = [],
+		links = [],
+		maxArticles = 0,
+		minArticles = 9000000,
+		group = 0;
+
+	var fill = d3.scale.category20();
+
+	for(var i in summary_data){
+		var node = summary_data[i];
+		nodes.push({"name":node.title, "size":node.num_articles, "totalauthors":node.num_authors, "group":group, "value":i})
+		if(node.num_articles>maxArticles)
+			maxArticles = node.num_articles;
+		if(node.num_articles<minArticles)
+			minArticles = node.num_articles;
+		group++;
+	}
+
+	var circleWidth = 100;
+	var radius = d3.scale.linear()
+				.domain([minArticles, maxArticles])
+				.range([50, 120]);
+
+	var vis = this.div;
+	vis.selectAll("svg")
+		.attr("opacity", 1)
+		.transition()
+		.duration(1500)
+		.attr("opacity", 0)
+		.remove();
+
+	vis = vis.append("svg")
+			.attr("class", "summary")
+			.attr("width", w)
+			.attr("height", h);
+	vis.style("background-color", "#232c32")
+		.attr("opacity", 0)
+		.transition()
+		.duration(700)
+		.attr("opacity", 1);
+
+	var force = d3.layout.force()
+				.nodes(nodes)
+				.links([])
+				.gravity(0.1)
+				.charge(-2000)
+				.linkDistance(1000)
+				.size([w, h]);
+
+	var link = vis.selectAll(".link")
+				.data(links)
+				.enter().append("line")
+				.attr("class", "link")
+
+	 var node = vis.selectAll("circle.node")
+				.data(nodes)
+				.enter().append("g")
+				.attr("class", "node")
+				.on("mouseover", function(d,i) {
+					d3.select(this).selectAll("circle")
+						.transition()
+						.duration(250)
+						.attr("r", function(d){return radius(d.size)+5})
+						.attr("fill",function(d){return fill(d.group)})
+						.attr('fill-opacity', 0.6);
+
+					d3.select(this).select("text")
+						.transition()
+						.duration(250)
+						// .style("cursor", "none")     
+						.attr("font-size","2.0em")
+						.attr("fill", "white")
+						.attr("x",function(d, i) {return radius(d.size)/3; })
+						.attr("y",function(d, i) { return radius(d.size)/3;})
+				})
+				.on("mouseout", function(d,i) {
+					d3.select(this).selectAll("circle")
+					.transition()
+					.duration(250)
+					.attr("r", function(d){return radius(d.size)})
+					.attr("fill",function(d){return fill(d.group)})
+					.attr('fill-opacity', 1)
+
+					d3.select(this).select("text")
+					.transition()
+					.duration(250)
+					.attr("font-size","1.5em")
+					.attr("color", "white")
+					.attr("x",function(d, i) {return radius(d.size)/5; })
+					.attr("y",function(d, i) { return radius(d.size)/5;})
+				})
+				.on("dblclick", function(d){
+					load_journal(index[d.value], self.event_handler);
+				})
+				.call(force.drag);
+
+	node.append("svg:circle")
+		.attr("opacity", 0)
+		.transition()
+		.duration(700)
+		.attr("opacity", 1)
+		.attr("cx", function(d) { return d.x; })
+		.attr("cy", function(d) { return d.y; })
+		.attr("r", function(d){return radius(d.size)})
+		.attr("fill",function(d){return fill(d.group)})
+		.attr('fill-opacity', 1)
+
+	//TEXT
+	node.append("text")
+		.attr("opacity", 0)
+		.transition()
+		.duration(700)
+		.attr("opacity", 1)
+		.text(function(d, i) { return d.name; })
+		.attr("x",    function(d, i) {return radius(d.size)/5; })
+		.attr("y",            function(d, i) { return radius(d.size)/5;})
+		.attr("font-size",    function(d, i) {  return  "1.5em"; })
+		.attr("font-color", "white");
+
+	force.on("tick", function(e) {
+		node.attr("transform", function(d, i) {     
+			return "translate(" + d.x + "," + d.y + ")"; 
+		});
+		link.attr("x1", function(d)   { return d.source.x; })
+			.attr("y1", function(d)   { return d.source.y; })
+			.attr("x2", function(d)   { return d.target.x; })
+			.attr("y2", function(d)   { return d.target.y; })
+	});
+
+	force.start();
 }
 
 MainView.prototype.preprocessData = function(journal, clusters){
 	//Generate All nodes and edges
-	
 	var data = {"nodes":[], "links":[]},
 		authors = journal.authors,
 		articles = journal.articles,
@@ -362,9 +500,15 @@ MainView.prototype.display = function(data){
 		o.source = data.nodes[o.source];
 		o.target = data.nodes[o.target];
 	}
-	this.div.selectAll("svg").remove();
-	var vis = this.div.append("svg")
-		.attr("class", "col-md-12")
+
+	var vis = this.div;
+	vis.attr("opacity", 0)
+		.transition()
+		.duration(1500)
+		.attr("opacity", 1)
+	vis = vis.append("svg");
+	
+	vis.attr("class", "col-md-12")
 		.attr("height", height);
 
 	hullg = vis.append("g");
@@ -406,8 +550,8 @@ MainView.prototype.display = function(data){
 				//return 150;
 			})
 			.linkStrength(function(l, i) {return 1;})
-			.gravity(0.05)   // gravity+charge tweaked to ensure good 'grouped' view (e.g. green group not smack between blue&orange, ...
-			.charge(-100)    // ... charge is important to turn single-linked groups to the outside
+			.gravity(0.1)   // gravity+charge tweaked to ensure good 'grouped' view (e.g. green group not smack between blue&orange, ...
+			.charge(-700)    // ... charge is important to turn single-linked groups to the outside
 			.friction(0.2)   // friction adjusted to get dampened display: less bouncy bouncy ball [Swedish Chef, anyone?]
 			.start();
 
@@ -452,7 +596,6 @@ MainView.prototype.display = function(data){
 			})
 			.on("dblclick", function(d) {
 				expand[d.group] = !expand[d.group];
-				console.log("doubleClick: ",d, expand)
 				init();
 			})
 			.on("click", function(d){
@@ -474,12 +617,7 @@ MainView.prototype.display = function(data){
 
 		force.on("tick", function(e) {
 			var k = 6 * e.alpha;
-			// nodes.forEach(function(o, i){
-			// 	o.x += i < 100 ? k : -k;
-			// 	o.y += i <100 ? k : -k;
-			// });
 			if (!hull.empty()) {
-				console.log("HULL NOt EMPTY")
 				hull.data(convexHulls(net.nodes, getGroup, off))
 					.attr("d", drawCluster);
 			}
