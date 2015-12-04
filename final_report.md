@@ -109,7 +109,13 @@ density requirements and to implement a special subgraph selection step that pre
 alternatives. You can see all this in the image above; on the left you see the system attempting to bundle sveral disconnected
 clusters. On the right, the clusters now get their own bundles and more accurately reflect the structure of the graph. 
 
-[discussion of final development of visualization]
+[TODO MIKE: MORE discussion of final development of visualization]
+
+In our final visualization we use a force directed graph with node bundles, the nodes are the authors from
+the curated datasets and we bundle those within the clusters that were computed previously. This allows
+our javascript code to remain relatively light weight as it doesn't need to perform a lot of heavy computation.
+Additionally we use the list of an author's or journal's articles from DBLP to show a listing on the side
+where the user can go read a journal or get more details about its authors.
 
 ## Overview and Motivation
 
@@ -141,15 +147,17 @@ microscopically (in terms of the dense subgraph itself).
 ## Data
 
 Our main source of data was the DBLP database, which contains a large amount of data on various academic journals, articles, 
-and authors. This data is in a structured format and available for download and thus was easily accessible to us and did
+and authors. This data is in a structured format and available for download and so was easily accessible to us and did
 not require any special effort beyond filtering it down. Once it had been transformed into collaboration networks, however,
 the resulting networks required some more involved processing. This processing included finding dense subgraphs, connected
 subgraphs, and manual cleanup, removing connected subgraphs that were too small or too dense to be interesting or useful for
 visualization. 
 
 In addition to DBLP, we also scraped author affiliations from publication databases that were linked by the DBLP entries.
-This proved to fairly involved as well as inconsistent in the case on some of the websites, and as a result, we ended up
-using only one of our initial prospects. This limited the journals we could use, but not so much as to be problematic. 
+This proved to fairly involved as well as inconsistent in the case on some of the websites, and as a result,
+we ended up using only one of our initial prospects to avoid needing to support every different site layout.
+This limited the journals we could use to just those published by the ACM but was not so limiting as to be
+problematic.
 
 ## Exploratory Data Analysis
 
