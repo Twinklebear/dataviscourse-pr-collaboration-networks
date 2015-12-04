@@ -10,10 +10,12 @@ var MainView = function(event_handler){
 	self.keypair = {};
 	self.allCurated = [];
 	self.allClustered = [];
+	self.selectedAuthorId = -1;
 	event_handler.on("index_loaded.main_view", function(index, authors) {
 		self.index_loaded(index, authors);
 	});
 	event_handler.on("journal_selected.main_view", function(journal, clusters, stats) {
+		self.selectedAuthorId =-1;
 		self.allClustered = clusters;
 		self.allCurated   = journal;
 		self.select_journal(journal, clusters);
@@ -23,21 +25,32 @@ var MainView = function(event_handler){
 	});
 	event_handler.on("brush_changed.main_view", function(start, end) {
 		self.brush_changed(start, end);
+		console.log(start)
+		console.log(end)
 	});
 }
-
 MainView.prototype.index_loaded = function(index, authors) {
 	this.displaySummaryGraph(index);
 }
-MainView.prototype.select_journal = function(journal, clusters) {
+MainView.prototype.brush_changed = function(start, end) {
+	var self = this;
+	if(self.selectedAuthorId !== -1){
+		self.author_selected(this.selectedAuthorId, start, end);
+	}else{
+		self.select_journal(this.allCurated, this.allClustered, start, end);
+	}
+}
+
+MainView.prototype.select_journal = function(journal, clusters, start, end) {
 	// 			- show all authors
 	//			- show edges based on article 
 	// 			- show edges width based on the count
-	var display_data = this.preprocessData(journal, clusters)
+	var display_data = this.preprocessData(journal, clusters, start, end)
 	this.display(display_data)
 }
-MainView.prototype.author_selected = function(author_id) {
+MainView.prototype.author_selected = function(author_id, start, end) {
 	//Get author data
+	this.selectedAuthorId = author_id;
 	var author = authors[author_id],
 		nodes =[],
 		links = [],
@@ -46,55 +59,325 @@ MainView.prototype.author_selected = function(author_id) {
 		author_start_year=0,
 		author_end_year = 0;
 	
-	nodes.push({"name":author.name, "affiliation":author.affiliation, "publications":author.articles.length, "group":node_id, 
-				"author_id":author_id, "node_id":node_id, "start_year":0, "end_year":0});
-	node_id++;
-	//Find its network
-	for(var i in author.articles){
-		var article = author.articles[i];
-		
-		if(author_start_year===0&&author_end_year===0){
-			author_start_year = article.year;
-			author_end_year = article.year;
-		}else if(article.year<author_start_year)
-			author_start_year = article.year;
-		else if(article.year > author_end_year)
-			author_end_year = article.year;
-		for(var j in article.authors){
-			if(article.authors[j]!=author_id){
-				var a = authors[article.authors[j]],
-					start_year=0,
-					end_year = 0;
-				for(var k in a.articles){
-					if(start_year===0&&end_year===0){
-						start_year = a.articles[k].year;
-						author_end_year = a.articles[k].year;
-					}else if(a.articles[k].year<start_year)
-						start_year = a.articles[k].year;
-					else if(a.articles[k].year > end_year)
-						end_year = a.articles[k].year;
-				}
-				nodes.push({"name":a.name, "affiliation":a.affiliation, "publications":a.articles.length, "group":node_id, 
-							"author_id":article.authors[j], "node_id":node_id, "start_year": start_year, "end_year":end_year});
-				links.push({"source":0, "target":node_id, "count":1, "value":1});
-				node_id++;
-			}
+	if (end === undefined||start === undefined){
+		console.log("In undefined")
+		nodes.push({"name":author.name, "affiliation":author.affiliation, "publications":author.articles.length, "group":node_id, 
+					"author_id":author_id, "node_id":node_id, "start_year":0, "end_year":0});
+		node_id++;
+		//Find its network
+		for(var i in author.articles){
+			var article = author.articles[i];
 			
+			if(author_start_year===0&&author_end_year===0){
+				author_start_year = article.year;
+				author_end_year = article.year;
+			}else if(article.year<author_start_year)
+				author_start_year = article.year;
+			else if(article.year > author_end_year)
+				author_end_year = article.year;
+			for(var j in article.authors){
+				if(article.authors[j]!=author_id){
+					var a = authors[article.authors[j]],
+						start_year=0,
+						end_year = 0;
+					for(var k in a.articles){
+						if(start_year===0&&end_year===0){
+							start_year = a.articles[k].year;
+							author_end_year = a.articles[k].year;
+						}else if(a.articles[k].year<start_year)
+							start_year = a.articles[k].year;
+						else if(a.articles[k].year > end_year)
+							end_year = a.articles[k].year;
+					}
+					nodes.push({"name":a.name, "affiliation":a.affiliation, "publications":a.articles.length, "group":node_id, 
+								"author_id":article.authors[j], "node_id":node_id, "start_year": start_year, "end_year":end_year});
+					links.push({"source":0, "target":node_id, "count":1, "value":1});
+					node_id++;
+				}
+				
+			}
+		}
+		nodes[0].start_year = author_start_year;
+		nodes[0].end_year   = author_end_year;
+	}else{
+		console.log("filter Author Data: " + start + "-" + end)
+		for(var i in author.articles){
+			if(author_start_year===0&&author_end_year===0){
+				author_start_year = author.articles[i].year;
+				author_end_year = author.articles[i].year;
+			}else if(author.articles[i].year<author_start_year)
+				author_start_year = author.articles[i].year;
+			else if(author.articles[i].year > author_end_year)
+				author_end_year = author.articles[i].year;
+		}
+
+		if( (start <= author_start_year && end >= author_start_year) || 
+			(start >= author_start_year && end <= author_end_year) ||
+			(start <= author_end_year   && end >= author_end_year)){
+			nodes.push({"name":author.name, "affiliation":author.affiliation, "publications":author.articles.length, "group":node_id, 
+					"author_id":author_id, "node_id":node_id, "start_year":author_start_year, "end_year":author_end_year});
+			node_id++;
+			//Find its network
+			for(var i in author.articles){
+				var article = author.articles[i];
+				for(var j in article.authors){
+					if(article.authors[j]!=author_id){
+						var a = authors[article.authors[j]],
+							start_year=0,
+							end_year = 0;
+						for(var k in a.articles){
+							if(start_year===0&&end_year===0){
+								start_year = a.articles[k].year;
+								end_year = a.articles[k].year;
+							}else if(a.articles[k].year<start_year)
+								start_year = a.articles[k].year;
+							else if(a.articles[k].year > end_year)
+								end_year = a.articles[k].year;
+						}
+						if((start >= start_year && end >= start_year) || 
+						   (start >= start_year && end <= end_year) ||
+						   (start <= end_year   && end >= end_year) ){
+							nodes.push({"name":a.name, "affiliation":a.affiliation, "publications":a.articles.length, "group":node_id, 
+									"author_id":article.authors[j], "node_id":node_id, "start_year": start_year, "end_year":end_year});
+							links.push({"source":0, "target":node_id, "count":1, "value":1});
+							node_id++;
+						}
+					}
+					
+				}
+			}
 		}
 	}
-	nodes[0].start_year = author_start_year;
-	nodes[0].end_year   = author_end_year;
+
 	data.nodes = nodes;
 	data.links = links;
 	//Display
 	this.display(data)
 }
-MainView.prototype.displaySelectedAuthors = function(author_data){
 
+MainView.prototype.preprocessData = function(journal, clusters, start, end){
+	
+	//Generate All nodes and edges
+	var data = {"nodes":[], "links":[]},
+		authors = journal.authors,
+		articles = journal.articles,
+		clusters_detail = clusters.clusters,
+		node_index = 0,
+		nodes = [],
+		edges = [],
+		cluster_group ={};
+	this.keypair={}; //match for author_id - node_index;
+	self.selectedAuthorId = -1;
+	var keypair= this.keypair;
+	// console.log(articles)
+
+	//get cluster infor
+	var cluster_size = Object.keys(clusters_detail).length;
+	for(var i =0; i<cluster_size; i++){
+		var cluster = clusters_detail["Cluster"+i];
+		for(var j in cluster.authors){
+			cluster_group[cluster.authors[j]] = {"cluster_id": i, "density":cluster.density};
+		}
+	}
+	//node is generated
+	var individualNode = 3;
+
+	for(var i in authors){
+		var author_node;
+		var authorid = authors[i]; 
+		if(cluster_group[authorid])
+			author_node={"node_id": node_index, "author_id": authorid, "cluster_id": cluster_group[authorid].cluster_id, 
+						"density": cluster_group[authorid].density, "start_year":0, "end_year":0,
+						"group":cluster_group[authorid].cluster_id};
+		else{
+			author_node={"node_id": node_index, "author_id": authorid, "cluster_id":cluster_size+individualNode, "density":0,"start_year":0, "end_year":0, 
+						"group":cluster_size+individualNode};
+			individualNode++;
+		}
+		nodes.push(author_node);
+		keypair[authorid] = node_index;
+		node_index++;
+		
+	}
+	var edge_withCount = {};
+	if (end === undefined||start === undefined){
+		//get author's publishing years (first and last) for filter
+		//generate edges based on authors in articles
+		var everyNode = false;  //if include curated nodes
+		if(everyNode){
+			for(var i in articles){
+				var article = articles[i];
+				var article_authors = article.authors;
+				for(var j = 0; j<article_authors.length; j++){
+					var authorid = article_authors[j];
+					var node = nodes[keypair[authorid]]
+					if(node){
+						//check publication year
+						if(nodes[keypair[authorid]]['start_year'] === 0 && nodes[keypair[authorid]]['end_year'] === 0){
+							nodes[keypair[authorid]]['start_year'] = article.year;
+							nodes[keypair[authorid]]['end_year'] = article.year;
+						}else if(article.year< nodes[keypair[authorid]]['start_year'])
+							nodes[keypair[authorid]]['start_year'] = article.year;
+						else if(article.year> nodes[keypair[authorid]]['end_year'])
+							nodes[keypair[authorid]]['end_year'] = article.year;
+					}else{
+						//for the authors that was missed in JSON
+						var author_node={"node_id": node_index, "author_id": authorid, "cluster_id":-1, "density":-1,"start_year":article.year, "end_year":article.year};
+						nodes.push(author_node);
+						keypair[authorid] = node_index;
+						node_index++;
+					}
+				}
+				//all users are in nodes
+				//offically generate edges
+				for(var j = 0; j<article_authors.length; j++){
+					var authorid = article_authors[j];
+					for(var k =j+1; k<article_authors.length; k++){
+						//create edge
+						var key = authorid+'-'+article_authors[k];
+						if(edge_withCount[key])
+							edge_withCount[key].count++;
+						else
+							edge_withCount[key] = {"count":1, "source":keypair[authorid], "target":keypair[article_authors[k]]};
+					}
+				}
+			}
+		}
+		else{
+			for(var i in articles){
+				var article = articles[i];
+				var article_authors = article.authors;
+				for(var j = 0; j<article_authors.length; j++){
+					var authorid = article_authors[j];
+					var node = nodes[keypair[authorid]]
+					if(node){
+						for(var k =j+1; k<article_authors.length; k++){
+							//create edge
+							if(article_authors[k]&&keypair[article_authors[k]]){
+								var key;
+								if(authorid>article_authors[k])
+									key = authorid+'-'+article_authors[k];
+								else
+									key = article_authors[k]+'-'+authorid;
+								if(edge_withCount[key])
+									edge_withCount[key].count++;
+								else
+									edge_withCount[key] = {"count":1, "source":keypair[authorid], "target":keypair[article_authors[k]]};
+							}
+						}
+						//check publication year
+						// console.log(authorid)
+						// console.log(keypair[authorid])
+						// console.log(nodes[keypair[authorid]])
+						if(nodes[keypair[authorid]]['start_year'] === 0 && nodes[keypair[authorid]]['end_year'] === 0){
+							nodes[keypair[authorid]]['start_year'] = article.year;
+							nodes[keypair[authorid]]['end_year'] = article.year;
+						}else if(article.year< nodes[keypair[authorid]]['start_year'])
+							nodes[keypair[authorid]]['start_year'] = article.year;
+						else if(article.year> nodes[keypair[authorid]]['end_year'])
+							nodes[keypair[authorid]]['end_year'] = article.year;
+					}
+				}
+			}
+		}
+		// console.log(edge_withCount)
+
+		// cluster edges
+		// for(var i =0; i<cluster_size; i++){
+		// 	var cluster = clusters_detail["Cluster"+i];
+		// 	for(var j in cluster.authors){
+		// 		var authorid = cluster.authors[j];
+		// 		for(var k =j+1; k<cluster.authors.length; k++){
+		// 			if(article_authors[k]){
+		// 				var key = authorid+'-'+article_authors[k];
+		// 				if(edge_withCount[key])
+		// 					edge_withCount[key].count++;
+		// 				else
+		// 					edge_withCount[key] = {"count":1, "source":keypair[authorid], "target":keypair[article_authors[k]]};
+		// 			}
+		// 		}
+		// 	}
+		// }
+		for(var i in edge_withCount)
+			edges.push(edge_withCount[i])
+
+		data.nodes = nodes;
+		data.links = edges;
+		return data;
+	}else{
+		
+		for(var i in articles){
+			var article = articles[i];
+			var article_authors = article.authors;
+			for(var j = 0; j<article_authors.length; j++){
+				var authorid = article_authors[j];
+				var node = nodes[keypair[authorid]]
+				if(node){
+					if(nodes[keypair[authorid]]['start_year'] === 0 && nodes[keypair[authorid]]['end_year'] === 0){
+						nodes[keypair[authorid]]['start_year'] = article.year;
+						nodes[keypair[authorid]]['end_year'] = article.year;
+					}else if(article.year< nodes[keypair[authorid]]['start_year'])
+						nodes[keypair[authorid]]['start_year'] = article.year;
+					else if(article.year> nodes[keypair[authorid]]['end_year'])
+						nodes[keypair[authorid]]['end_year'] = article.year;
+				}
+			}
+		}
+		var finalnodes = [];
+		var finalkeypair = {};
+		var finalindex = 0;
+		//check nodes
+		for(var i in nodes){
+			var author = nodes[i];
+			//check years here and add to finalNode
+			if( (start <= author.start_year && end >= author.start_year) || 
+			(start >= author.start_year && end <= author.end_year) ||
+			(start <= author.end_year   && end >= author.end_year)){
+				//add to final nodes
+				author.node_id = finalindex;
+				finalnodes.push(author);
+				finalkeypair[author.author_id] = finalindex;
+				finalindex++;
+			}
+		}
+		//check && add edges
+		for(var i in articles){
+			var article = articles[i];
+			var article_authors = article.authors;
+			for(var j = 0; j<article_authors.length; j++){
+				var authorid = article_authors[j];
+				var node = finalnodes[finalkeypair[authorid]]
+				if(node){
+					for(var k =j+1; k<article_authors.length; k++){
+						//create edge
+						if(article_authors[k]&&finalkeypair[article_authors[k]]){
+							var key;
+							if(authorid>article_authors[k])
+								key = authorid+'-'+article_authors[k];
+							else
+								key = article_authors[k]+'-'+authorid;
+							if(edge_withCount[key])
+								edge_withCount[key].count++;
+							else
+								edge_withCount[key] = {"count":1, "source":finalkeypair[authorid], "target":finalkeypair[article_authors[k]]};
+						}
+					}
+				}
+			}
+		}
+
+		for(var i in edge_withCount)
+			edges.push(edge_withCount[i])
+
+		data.nodes = finalnodes;
+		data.links = edges;
+		return data;
+	}
 }
 
 MainView.prototype.displaySummaryGraph = function(summary_data){
 	var self = this;
+	self.selectedAuthorId = -1;
 	var w = self.width,
 		h = self.height,
 		nodes = [],
@@ -189,6 +472,7 @@ MainView.prototype.displaySummaryGraph = function(summary_data){
 					.attr("y",function(d, i) { return radius(d.size)/5;})
 				})
 				.on("dblclick", function(d){
+					journal_picker.value=d.value;
 					load_journal(index[d.value], self.event_handler);
 				})
 				.call(force.drag);
@@ -229,157 +513,9 @@ MainView.prototype.displaySummaryGraph = function(summary_data){
 	force.start();
 }
 
-MainView.prototype.preprocessData = function(journal, clusters){
-	//Generate All nodes and edges
-	var data = {"nodes":[], "links":[]},
-		authors = journal.authors,
-		articles = journal.articles,
-		clusters_detail = clusters.clusters,
-		node_index = 0,
-		nodes = [],
-		edges = [],
-		cluster_group ={};
-	this.keypair={}; //match for author_id - node_index;
-	var keypair= this.keypair;
-	// console.log(articles)
-
-	//get cluster infor
-	var cluster_size = Object.keys(clusters_detail).length;
-	for(var i =0; i<cluster_size; i++){
-		var cluster = clusters_detail["Cluster"+i];
-		for(var j in cluster.authors){
-			cluster_group[cluster.authors[j]] = {"cluster_id": i, "density":cluster.density};
-		}
-	}
-	//node is generated
-	var individualNode = 3;
-	// for(var i in authors){
-	for(var i =0; i<authors.length; i++){
-		var author_node;
-		var authorid = authors[i]; 
-		if(cluster_group[authorid])
-			author_node={"node_id": node_index, "author_id": authorid, "cluster_id": cluster_group[authorid].cluster_id, 
-						"density": cluster_group[authorid].density, "start_year":0, "end_year":0,
-						"group":cluster_group[authorid].cluster_id};
-		else{
-			author_node={"node_id": node_index, "author_id": authorid, "cluster_id":cluster_size+individualNode, "density":0,"start_year":0, "end_year":0, 
-						"group":cluster_size+individualNode};
-			individualNode++;
-		}
-		nodes.push(author_node);
-		keypair[authorid] = node_index;
-		node_index++;
-		
-	}
-
-	//get author's publishing years (first and last) for filter
-	//generate edges based on authors in articles
-	var edge_withCount = {};
-	var everyNode = false;  //if include curated nodes
-	if(everyNode){
-		for(var i in articles){
-			var article = articles[i];
-			var article_authors = article.authors;
-			for(var j = 0; j<article_authors.length; j++){
-				var authorid = article_authors[j];
-				var node = nodes[keypair[authorid]]
-				if(node){
-					//check publication year
-					if(nodes[keypair[authorid]]['start_year'] === 0 && nodes[keypair[authorid]]['end_year'] === 0){
-						nodes[keypair[authorid]]['start_year'] = article.year;
-						nodes[keypair[authorid]]['end_year'] = article.year;
-					}else if(article.year< nodes[keypair[authorid]]['start_year'])
-						nodes[keypair[authorid]]['start_year'] = article.year;
-					else if(article.year> nodes[keypair[authorid]]['end_year'])
-						nodes[keypair[authorid]]['end_year'] = article.year;
-				}else{
-					//for the authors that was missed in JSON
-					var author_node={"node_id": node_index, "author_id": authorid, "cluster_id":-1, "density":-1,"start_year":article.year, "end_year":article.year};
-					nodes.push(author_node);
-					keypair[authorid] = node_index;
-					node_index++;
-				}
-			}
-			//all users are in nodes
-			//offically generate edges
-			for(var j = 0; j<article_authors.length; j++){
-				var authorid = article_authors[j];
-				for(var k =j+1; k<article_authors.length; k++){
-					//create edge
-					var key = authorid+'-'+article_authors[k];
-					if(edge_withCount[key])
-						edge_withCount[key].count++;
-					else
-						edge_withCount[key] = {"count":1, "source":keypair[authorid], "target":keypair[article_authors[k]]};
-				}
-			}
-		}
-	}
-	else{
-		for(var i in articles){
-			var article = articles[i];
-			var article_authors = article.authors;
-			for(var j = 0; j<article_authors.length; j++){
-				var authorid = article_authors[j];
-				var node = nodes[keypair[authorid]]
-				if(node){
-					for(var k =j+1; k<article_authors.length; k++){
-						//create edge
-						if(article_authors[k]&&keypair[article_authors[k]]){
-							var key;
-							if(authorid>article_authors[k])
-								key = authorid+'-'+article_authors[k];
-							else
-								key = article_authors[k]+'-'+authorid;
-							if(edge_withCount[key])
-								edge_withCount[key].count++;
-							else
-								edge_withCount[key] = {"count":1, "source":keypair[authorid], "target":keypair[article_authors[k]]};
-						}
-					}
-					//check publication year
-					// console.log(authorid)
-					// console.log(keypair[authorid])
-					// console.log(nodes[keypair[authorid]])
-					if(nodes[keypair[authorid]]['start_year'] === 0 && nodes[keypair[authorid]]['end_year'] === 0){
-						nodes[keypair[authorid]]['start_year'] = article.year;
-						nodes[keypair[authorid]]['end_year'] = article.year;
-					}else if(article.year< nodes[keypair[authorid]]['start_year'])
-						nodes[keypair[authorid]]['start_year'] = article.year;
-					else if(article.year> nodes[keypair[authorid]]['end_year'])
-						nodes[keypair[authorid]]['end_year'] = article.year;
-				}
-			}
-		}
-	}
-	// console.log(edge_withCount)
-
-	// cluster edges
-	// for(var i =0; i<cluster_size; i++){
-	// 	var cluster = clusters_detail["Cluster"+i];
-	// 	for(var j in cluster.authors){
-	// 		var authorid = cluster.authors[j];
-	// 		for(var k =j+1; k<cluster.authors.length; k++){
-	// 			if(article_authors[k]){
-	// 				var key = authorid+'-'+article_authors[k];
-	// 				if(edge_withCount[key])
-	// 					edge_withCount[key].count++;
-	// 				else
-	// 					edge_withCount[key] = {"count":1, "source":keypair[authorid], "target":keypair[article_authors[k]]};
-	// 			}
-	// 		}
-	// 	}
-	// }
-	for(var i in edge_withCount)
-		edges.push(edge_withCount[i])
-
-	data.nodes = nodes;
-	data.links = edges;
-	return data;
-}
-
 
 MainView.prototype.display = function(data){
+	console.log("display")
 	var self = this;
 	self.div.attr("opacity", 0.8)
 		.transition()
@@ -387,7 +523,12 @@ MainView.prototype.display = function(data){
 		.attr("opacity", 0)
 		.selectAll("svg")
 		.remove();
-
+	self.div.innerHTML = "";
+	if(data.nodes.length === 0){
+		console.log("empty")
+		self.div.innerHTML = "NO DATA AVAILABLE IN THE PERIOD. "
+		return;
+	}
 	var height = self.height,     // svg height
 		width = self.width,
 		dr = 4,      // default point radius
@@ -631,19 +772,15 @@ MainView.prototype.display = function(data){
 
 		node.exit().remove();
 		var circle = node.enter().append("circle")
-			// if (d.size) -- d.size > 0 when d is a group node.
 			.attr("class", function(d) { return "node" + (d.size?"":" leaf"); })
 			.attr("r", function(d) { return d.size ? d.size + dr : dr+1; })
 			.attr("cx", function(d) { 
-				// if(d.node_id==0) return 30; else return d.x+2;
 				return d.x; 
 			})
 			.attr("cy", function(d) { 
-				// if(d.node_id==0) return 30; else return d.y+2; 
 				return d.y;
 			})
 			.style("fill", function(d) { 
-				// if(!expand[d.group]) return fill(d.group); else return fill(d.group*2+d.cluster_id);
 				return fill(d.group); 
 			})
 			.on("dblclick", function(d) {
@@ -653,15 +790,17 @@ MainView.prototype.display = function(data){
 			})
 			.on("click", function(d){
 				//TODO: hightlight
-				// console.log("CLICKED: ", d)
 				tooltip.text("").style("visibility", "hidden");
-				if(!d.nodes)
+				if(!d.nodes){
+					self.selectedAuthorId = -1;
 					self.event_handler.author_selected(d.author_id);
-				else if(d.size==1)
+				}
+				else if(d.size==1){
+					self.selectedAuthorId = -1;
 					self.event_handler.author_selected(d.nodes[0].author_id);
+				}
 			})
 			.on("mouseover", function(d){
-				console.log(d);
 				if(d.size==1){
 					if(d.nodes[0].name){
 						var n = d.nodes[0];
@@ -678,12 +817,6 @@ MainView.prototype.display = function(data){
 			.on("mouseout", function(d){
 				return tooltip.text("").style("visibility", "hidden");
 			});
-			// .on("mousewheel.zoom", function(d) { d3.event.stopPropagation();
-		 //    	var dcx = (width/2-d.x*zoom.scale());
-		 //    	var dcy = (height/2-d.y*zoom.scale());
-		 //    	zoom.translate([dcx,dcy]);
-		 //    	nodeg.attr("transform", "translate("+ dcx + "," + dcy  + ")scale(" + zoom.scale() + ")");
-			// });
 
 		node.call(force.drag);
 
@@ -709,16 +842,11 @@ MainView.prototype.display = function(data){
 			link.style("stroke-width",stroke);
 			circle.style("stroke-width",stroke);
 			var base_radius = nominal_base_node_size;
-			// if (nominal_base_node_size*zoom.scale()>max_base_node_size) base_radius = max_base_node_size/zoom.scale();
-			//     circle.attr("d", d3.svg.symbol()
-			//     .size(function(d) { return Math.PI*Math.pow(size(10)*base_radius/nominal_base_node_size||base_radius,2); })
-			//     .type(function(d) { return d.type; }))
 			hullg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 			linkg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-			// circle.attr("r", function(d) { return (size(10)*base_radius/nominal_base_node_size||base_radius); })
 			nodeg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 		});
-
-		vis.call(zoom);
+		vis.call(zoom)
+			.on("dblclick.zoom", null);
 	}
 }
