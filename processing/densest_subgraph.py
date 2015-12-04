@@ -151,6 +151,15 @@ def find_densest_subgraph(nodes):
     if subgraph_densities[i]> subgraph_densities[highest_density_index]:
       highest_density_index= i
   print "highest density:", subgraph_densities[highest_density_index], "index:", highest_density_index
+  
+  best_index= highest_density_index
+  for i in range(len(subgraph_densities)):
+    if i> highest_density_index:
+      if (subgraph_densities[i]* 1.1)> subgraph_densities[highest_density_index]:
+        print "choosing higher index:", i, subgraph_densities[i], subgraph_densities[highest_density_index]
+        best_index= i
+        
+  highest_density_index= best_index
 
   removed_node_set= set()
   for i in range(highest_density_index):
@@ -241,7 +250,7 @@ def find_connected_subgraphs(nodes, selected_nodes):
       
   return subgraphs
 
-filenames= ["../data/dm"]
+filenames= ["sigplan_curated"]
 
 for filename in filenames:
   nodes= {}
