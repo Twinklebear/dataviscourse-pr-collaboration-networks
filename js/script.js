@@ -28,12 +28,6 @@ window.onload = function() {
 		if (this.value !== "index"){
 			load_journal(index[this.value], dispatcher);
 		} else {
-			d3.select("#main_view").selectAll("svg")
-						.attr("opacity", 1)
-						.transition()
-						.duration(300)
-						.attr("opacity", 0)
-						.remove();
 			dispatcher.index_loaded(index, authors);
 		}
 	});

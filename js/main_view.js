@@ -4,7 +4,7 @@ var MainView = function(event_handler){
 	// Setup ourself to listen for events we want
 	var self = this;
 	self.event_handler = event_handler;
-	self.height = height = 600,     // svg height
+	self.height = height = 630,     // svg height
 	self.width  = document.getElementById("main_view").offsetWidth,
 	self.div = d3.select("#main_view");
 	self.keypair = {};
@@ -86,7 +86,7 @@ MainView.prototype.displaySummaryGraph = function(summary_data){
 	vis.selectAll("svg")
 		.attr("opacity", 1)
 		.transition()
-		.duration(1500)
+		.duration(100)
 		.attr("opacity", 0)
 		.remove();
 
@@ -504,7 +504,7 @@ MainView.prototype.display = function(data){
 	var vis = this.div;
 	vis.attr("opacity", 0)
 		.transition()
-		.duration(1500)
+		.duration(500)
 		.attr("opacity", 1)
 	vis = vis.append("svg");
 	
