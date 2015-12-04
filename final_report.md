@@ -89,15 +89,15 @@ we created a script that moved between our json file format and gml. This allowe
 with Gephi, but also edit them with Gephi and then turn them back into json files. This allowed us to create curated 
 collaboration networks with a manageable number of nodes. 
 
-[picture of bad clustering]
-[picture of good clustering]
+![Bad clustering of tist collaboration network (left), good clustering (right)](report_images/bad_good_clusters.png)
 Due to some positive early tests on the clustering implementation, some significant issues with it slipped through into
 late in development. What we discovered was that we were generating clusters of nodes that were unconnected and/or had
 a large number of loosely connected nodes. After analyzing the results and the implementation, we discovered that our 
 algorithm was running into situation where the cluster we were looking for were narrowly losing to large collections of
 several clusters (in terms of density), especially when dealing with low densities. Our solution was to increase our minimum
 density requirements and to implement a special subgraph selection step that prefers smaller clusters if there exists close
-alternatives. 
+alternatives. You can see all this in the image above; on the left you see the system attempting to bundle sveral disconnected
+clusters. On the right, the clusters now get their own bundles and more accurately reflect the structure of the graph. 
 
 [discussion of final development of visualization]
 
@@ -142,15 +142,15 @@ using only one of our initial prospects. This limited the journals we could use,
 
 ## Exploratory Data Analysis
 
-![sigplan collaboration network with computed clusters manually drawn on](report_images/sigplan_clustered)
+![sigplan collaboration network with computed clusters manually drawn on](report_images/sigplan_clustered.png)
 Our main tool for viewing our data before we had a custom visualization method was Gephi. We used this software extensively 
 to judge the qualities of the prospective collaboration network, as well as the quality of our densest subgraph implementation. 
 There were many graphs that we viewed with Gephi and were able to immediately determine that we did not want to continue working 
 with them either because they were far too dense, large, or not dense enough, their largest subgraphs only being a handful of 
 nodes. We also used Gephi to evaluate experimental methods of simplifying dense graphs.
 
-![tog collaboration network unrestricted (left) and restricted to two author articles (right)](report_images/tog_trimmed)
-![sigplan collaboration network unrestricted (left) and restricted to two-to-three author articles (right)](report_images/dm_trimmed)
+![tog collaboration network unrestricted (left) and restricted to two author articles (right)](report_images/tog_trimmed.png)
+![sigplan collaboration network unrestricted (left) and restricted to two-to-three author articles (right)](report_images/dm_trimmed.png)
 
 These methods in the end did not result in new visualizations due to the size of the graph still being an issue.
 
@@ -168,8 +168,8 @@ our data a acquisition and methods themselves.
 
 ## Evaluation
 
-![sigplan visualization with expanded bundle(left), with closed bundle(right)](report_images/sigplan_bundle)
-![tist visualization with expanded bundle(left), with closed bundle(right)](report_images/tist_bundle)
+![sigplan visualization with expanded bundle(left), with closed bundle(right)](report_images/sigplan_bundle.png)
+![tist visualization with expanded bundle(left), with closed bundle(right)](report_images/tist_bundle.png)
 One of the things we were worried about when coming up with this visualization was that dense clusters would always refer
 to articles with many authors. It turned out that this behavior was common in our final visualization (although we believe that 
 this could still be solved with more advanced clustering methods), however, the surprising result was that this wasn't necessarily
