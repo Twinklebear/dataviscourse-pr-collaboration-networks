@@ -27,8 +27,6 @@ var MainView = function(event_handler){
 }
 
 MainView.prototype.index_loaded = function(index, authors) {
-	//TODO: show summary of the all journals
-	console.log("TODO: MIKE MainView index loaded");
 	this.displaySummaryGraph(index);
 }
 MainView.prototype.select_journal = function(journal, clusters) {
@@ -39,20 +37,60 @@ MainView.prototype.select_journal = function(journal, clusters) {
 	this.display(display_data)
 }
 MainView.prototype.author_selected = function(author_id) {
-	//TODO: hight light the author in the nodes
 	//Get author data
-	var author = this.allAuthors[author_id];
-	console.log(author)
+	var author = authors[author_id],
+		nodes =[],
+		links = [],
+		node_id = 0,
+		data = {"nodes":[], "links":[]},
+		author_start_year=0,
+		author_end_year = 0;
+	
+	nodes.push({"name":author.name, "affiliation":author.affiliation, "publications":author.articles.length, "group":node_id, 
+				"author_id":author_id, "node_id":node_id, "start_year":0, "end_year":0});
+	node_id++;
 	//Find its network
-	var collaberator = [];
+	for(var i in author.articles){
+		var article = author.articles[i];
+		
+		if(author_start_year===0&&author_end_year===0){
+			author_start_year = article.year;
+			author_end_year = article.year;
+		}else if(article.year<author_start_year)
+			author_start_year = article.year;
+		else if(article.year > author_end_year)
+			author_end_year = article.year;
+		for(var j in article.authors){
+			if(article.authors[j]!=author_id){
+				var a = authors[article.authors[j]],
+					start_year=0,
+					end_year = 0;
+				for(var k in a.articles){
+					if(start_year===0&&end_year===0){
+						start_year = a.articles[k].year;
+						author_end_year = a.articles[k].year;
+					}else if(a.articles[k].year<start_year)
+						start_year = a.articles[k].year;
+					else if(a.articles[k].year > end_year)
+						end_year = a.articles[k].year;
+				}
+				nodes.push({"name":a.name, "affiliation":a.affiliation, "publications":a.articles.length, "group":node_id, 
+							"author_id":article.authors[j], "node_id":node_id, "start_year": start_year, "end_year":end_year});
+				links.push({"source":0, "target":node_id, "count":1, "value":1});
+				node_id++;
+			}
+			
+		}
+	}
+	nodes[0].start_year = author_start_year;
+	nodes[0].end_year   = author_end_year;
+	data.nodes = nodes;
+	data.links = links;
 	//Display
-	console.log("TODO: MIKE MainView author selected");
-	console.log(author_id)
-	console.log(this.keypair[author_id])
+	this.display(data)
 }
-MainView.prototype.brush_changed = function(start, end) {
-	//TODO: only display authors who public during the period
-	console.log("TODO: MIKE MainView brush changed");
+MainView.prototype.displaySelectedAuthors = function(author_data){
+
 }
 
 MainView.prototype.displaySummaryGraph = function(summary_data){
@@ -343,6 +381,12 @@ MainView.prototype.preprocessData = function(journal, clusters){
 
 MainView.prototype.display = function(data){
 	var self = this;
+	self.div.attr("opacity", 0.8)
+		.transition()
+		.duration(300)
+		.attr("opacity", 0)
+		.selectAll("svg")
+		.remove();
 
 	var height = self.height,     // svg height
 		width = self.width,
@@ -368,6 +412,17 @@ MainView.prototype.display = function(data){
 		.tension(.85);
 	
 	var fill = d3.scale.category20();
+
+	var vis = self.div;
+
+	vis = vis.append("svg");
+	
+	vis.attr("class", "col-md-12")
+		.attr("height", height);
+
+	hullg = vis.append("g");
+	linkg = vis.append("g");
+	nodeg = vis.append("g");
 
 	function noop() { return false; }
 
@@ -501,26 +556,18 @@ MainView.prototype.display = function(data){
 		o.target = data.nodes[o.target];
 	}
 
-	var vis = this.div;
-	vis.attr("opacity", 0)
-		.transition()
-		.duration(500)
-		.attr("opacity", 1)
-	vis = vis.append("svg");
-	
-	vis.attr("class", "col-md-12")
-		.attr("height", height);
-
-	hullg = vis.append("g");
-	linkg = vis.append("g");
-	nodeg = vis.append("g");
-
 	init();
 
 	vis.attr("opacity", 1e-6)
 		.transition()
-		.duration(1000)
+		.duration(1500)
 		.attr("opacity", 1);
+
+	var tooltip = d3.select("body")
+		.append("div")
+		.style("position", "absolute")
+		.style("z-index", "10")
+		.style("visibility", "hidden");
 
 	function init() {
 		if (force) force.stop();
@@ -587,30 +634,56 @@ MainView.prototype.display = function(data){
 			// if (d.size) -- d.size > 0 when d is a group node.
 			.attr("class", function(d) { return "node" + (d.size?"":" leaf"); })
 			.attr("r", function(d) { return d.size ? d.size + dr : dr+1; })
-			.attr("cx", function(d) { return d.x+2; })
-			.attr("cy", function(d) { return d.y+2; })
+			.attr("cx", function(d) { 
+				// if(d.node_id==0) return 30; else return d.x+2;
+				return d.x; 
+			})
+			.attr("cy", function(d) { 
+				// if(d.node_id==0) return 30; else return d.y+2; 
+				return d.y;
+			})
 			.style("fill", function(d) { 
 				// if(!expand[d.group]) return fill(d.group); else return fill(d.group*2+d.cluster_id);
 				return fill(d.group); 
 			})
 			.on("dblclick", function(d) {
+				tooltip.text("").style("visibility", "hidden");
 				expand[d.group] = !expand[d.group];
 				init();
 			})
 			.on("click", function(d){
 				//TODO: hightlight
 				// console.log("CLICKED: ", d)
+				tooltip.text("").style("visibility", "hidden");
 				if(!d.nodes)
 					self.event_handler.author_selected(d.author_id);
 				else if(d.size==1)
 					self.event_handler.author_selected(d.nodes[0].author_id);
 			})
-			.on("mousewheel.zoom", function(d) { d3.event.stopPropagation();
-		    	var dcx = (width/2-d.x*zoom.scale());
-		    	var dcy = (height/2-d.y*zoom.scale());
-		    	zoom.translate([dcx,dcy]);
-		    	nodeg.attr("transform", "translate("+ dcx + "," + dcy  + ")scale(" + zoom.scale() + ")");
+			.on("mouseover", function(d){
+				console.log(d);
+				if(d.size==1){
+					if(d.nodes[0].name){
+						var n = d.nodes[0];
+						return tooltip.text(n.name + ", " + n.affiliation).style("font-size", "2.0em").style("background-color","white").style("visibility", "visible");
+					}
+					else
+						return tooltip.text("").style("visibility", "visible");
+				}
+				
+			})
+			.on("mousemove", function(d){
+				return tooltip.style("top", (d3.event.pageY)+5+"px").style("left",(d3.event.pageX)+40+"px");
+			})
+			.on("mouseout", function(d){
+				return tooltip.text("").style("visibility", "hidden");
 			});
+			// .on("mousewheel.zoom", function(d) { d3.event.stopPropagation();
+		 //    	var dcx = (width/2-d.x*zoom.scale());
+		 //    	var dcy = (height/2-d.y*zoom.scale());
+		 //    	zoom.translate([dcx,dcy]);
+		 //    	nodeg.attr("transform", "translate("+ dcx + "," + dcy  + ")scale(" + zoom.scale() + ")");
+			// });
 
 		node.call(force.drag);
 
