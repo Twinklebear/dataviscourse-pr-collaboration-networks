@@ -5,7 +5,7 @@ var BrushView = function(event_handler) {
     var self = this;
 	this.margin = { top: 10, right: 30, bottom: 50, left: 30 };
     this.brush_year_start = 1960;
-    this.brush_year_end = 2015;
+    this.brush_year_end = 2016;
 
 	this.brush_div = d3.select("#brush");
     this.width = this.brush_div.node().getBoundingClientRect().width - this.margin.left - this.margin.right;
@@ -81,7 +81,7 @@ BrushView.prototype.author_selected = function(author_id) {
 }
 BrushView.prototype.draw_histogram = function(data) {
 	var self = this;
-	this.x_scale.domain(d3.range(1960, 2016, 1));
+	this.x_scale.domain(d3.range(this.brush_year_start, this.brush_year_end, 1));
 	this.y_scale.domain([0, d3.max(data.map(function(d) { return d.count; }))]);
 	this.y_axis.scale(this.y_scale);
 
@@ -119,13 +119,21 @@ BrushView.prototype.select_brushed = function() {
 	var extent = this.brush.extent();
 	var start = Math.ceil(scale.invert(extent[0]));
 	var end = Math.ceil(scale.invert(extent[1]));
-	if (end > 2016){
-		end = 2016;
+	if (end > this.brush_year_end){
+		end = this.brush_year_end;
 		if (start == end){
 			start = end - 1;
 		}
 	}
-
+	if (start >= end){
+		if (this.was_brushing){
+			d3.select(".brush").call(this.brush.clear());
+			this.event_handler.brush_changed(undefined, undefined);
+			this.was_brushing = false;
+		}
+		return;
+	}
+	this.was_brushing = true;
 	// Snap the rect edges
 	d3.select(".brush").transition().call(this.brush.extent([scale(start), scale(end)]));
 	this.event_handler.brush_changed(start, end - 1);
