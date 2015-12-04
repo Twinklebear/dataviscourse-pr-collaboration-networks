@@ -456,19 +456,11 @@ MainView.prototype.displaySummaryGraph = function(summary_data){
 
 	var vis = this.div;
 	vis.selectAll("svg")
-		.attr("opacity", 1)
-		.transition()
-		.duration(100)
-		.attr("opacity", 0)
 		.remove();
 
 	vis = vis.append("svg")
 			.attr("class", "summary col-md-12")
 			.attr("height", h);
-	vis.attr("opacity", 0)
-		.transition()
-		.duration(700)
-		.attr("opacity", 1);
 
 	var force = d3.layout.force()
 				.nodes(nodes)
@@ -559,11 +551,7 @@ MainView.prototype.displaySummaryGraph = function(summary_data){
 
 MainView.prototype.display = function(data){
 	var self = this;
-	self.div.attr("opacity", 0.8)
-		.transition()
-		.duration(300)
-		.attr("opacity", 0)
-		.selectAll("svg")
+	self.div.selectAll("svg")
 		.remove();
 	if(data.nodes.length<1){
 		return;
@@ -737,11 +725,6 @@ MainView.prototype.display = function(data){
 	}
 
 	init();
-
-	vis.attr("opacity", 1e-6)
-		.transition()
-		.duration(1500)
-		.attr("opacity", 1);
 
 	var tooltip = d3.select("body")
 		.append("div")
