@@ -123,7 +123,7 @@ MainView.prototype.displaySummaryGraph = function(summary_data){
 						.duration(250)
 						.attr("r", function(d){return radius(d.size)+5})
 						.attr("fill",function(d){return fill(d.group)})
-						.attr('fill-opacity', 0.6);
+						.attr('fill-opacity', 1);
 
 					d3.select(this).select("text")
 						.transition()
@@ -140,7 +140,7 @@ MainView.prototype.displaySummaryGraph = function(summary_data){
 					.duration(250)
 					.attr("r", function(d){return radius(d.size)})
 					.attr("fill",function(d){return fill(d.group)})
-					.attr('fill-opacity', 1)
+					.attr('fill-opacity', 0.85)
 
 					d3.select(this).select("text")
 					.transition()
@@ -159,12 +159,12 @@ MainView.prototype.displaySummaryGraph = function(summary_data){
 		.attr("opacity", 0)
 		.transition()
 		.duration(700)
-		.attr("opacity", 1)
+		.attr("opacity", 0.85)
 		.attr("cx", function(d) { return d.x; })
 		.attr("cy", function(d) { return d.y; })
 		.attr("r", function(d){return radius(d.size)})
 		.attr("fill",function(d){return fill(d.group)})
-		.attr('fill-opacity', 1)
+		.attr('fill-opacity', 0.85)
 
 	//TEXT
 	node.append("text")
@@ -576,7 +576,6 @@ MainView.prototype.display = function(data){
 			.attr("x2", function(d) { return d.target.x+2; })
 			.attr("y2", function(d) { return d.target.y+2; })
 			.style("stroke-width", function(d) { 
-				// console.log(d); 
 				return d.size || 1; 
 			});
 
