@@ -1,4 +1,4 @@
-var data_path = 'data_all/curated_data/',
+var data_path = 'data_all/curated_data/';
 	index = {},
 	authors = {};
 
@@ -64,10 +64,12 @@ function load_journal(journal, dispatcher){
 		.json("clusters", data_path + journal['clusters'])
 		.csv("stats", data_path + journal['stats'])
 		.onload(function(data) {
+			d3.select("#main_view").selectAll("svg").remove();
 			console.log("Loaded");
 			var journal = data['journal'];
 			var clusters = data['clusters'];
 			var stats = data['stats'];
 			dispatcher.journal_selected(journal, clusters, stats);
 		});
+
 }

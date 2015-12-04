@@ -218,14 +218,16 @@ SelectionDetail.prototype.update_article = function(element, article) {
 SelectionDetail.prototype.select_years = function(start, end) {
 	// If we're in the journal view we want to filter the journal's articles
 	// otherwise if we're in the author view filter the author's articles
+	var filter = undefined;
+	if (start !== undefined && end !== undefined){
+		filter = function(d) {
+			return d.year >= start && d.year <= end;
+		};
+	}
 	if (this.journal !== null){
-		this.select_journal(this.journal, function(d) {
-			return d.year >= start && d.year <= end;
-		});
+		this.select_journal(this.journal, filter);
 	} else if (this.author !== null){
-		this.select_author(this.author, function(d) {
-			return d.year >= start && d.year <= end;
-		});
+		this.select_author(this.author, filter);
 	}
 }
 
