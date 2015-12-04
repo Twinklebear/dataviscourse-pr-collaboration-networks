@@ -98,7 +98,10 @@ BrushView.prototype.draw_histogram = function(data) {
 		.data(data);
 	bars.exit().remove();
 	bars.enter().append("rect").attr("class", "bar")
-		.attr("width", this.x_scale.rangeBand());
+		.attr("width", this.x_scale.rangeBand())
+		.attr("fill", "#43a2ca")
+		.attr("stroke", "#bdbdbd")
+		.attr("stroke-width", 1);
 	bars.attr("x", function(d) {
 			return self.x_scale(d.year);
 		})
