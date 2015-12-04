@@ -6,18 +6,20 @@ Authors: Kevin Wall, Mike Liu, Will Usher
 
 ### Brainstorming
 
-#### Networks
+### Networks
 
-[pictures of nodetrix] [citation]
-One of our members attended a talk by Jean-Daniel Fekete on visualization graphs using matrices (NodeTrix). 
-This gave rise to the idea of using hierarchical nodes to represent dense subgraphs instead of small matrices. 
+![Dense subgraphs are replaced with small matrices](report_images/nodetrix1.png) 
+[citation]
+Early in the semester, Jean-Daniel Fekete gave a talk at the SCI institute on visualizing graphs using matrices 
+in a method called NodeTrix, introduced in a paper he coauthored. This gave us the idea to use hierarchical nodes
+to represent dense subgraphs instead of small matrices. 
 
-[pictures of possible graphs in gephi]
+![Coauthorship network of scientists in field of network science](report_images/netscience.png) 
 We looked at many different network/graph datasets available on the Stanford Network Analysis Project's website.
 However, these graphs were extremely large and were in general not very rich in information, only describing
 the graph itself and not telling much about the nodes.
 
-[picture of dblp logo]
+![dblp logo](report_images/dblp.png) 
 After talking with the instructor, we were put on the trail of dblp, which is a large database of research journals,
 articles, and authors. We decided we could make use this data to generate collaboration networks.
 
@@ -31,16 +33,16 @@ We already new where our data was going to come from (the dblp database), and we
 but a major roadblock to development was still getting the specific data we wanted to show (or at least a 
 representative sample) in the format we wanted it in. As an example, we anticipated that scraping the author 
 affiliations could be an expensive task, so we needed to know what websites to target as soon as possible. Without 
-knowing what journals we were going to use, this task could not begin. 
+knowing what journals we were going to use, this task could not begin.
 
-[picture of tool described below]
+![Output of journal analysis tool](report_images/journals.png) 
 In order to find these journals, we began making tools to analyze the data. The first such tool was a simple python 
 script that collected endpoint urls for a sample of publications within every journal in the dblp database and printed
 out a their distribution, as well as which journals possesed the most links to publication databases. This told us 
 where the articles were hosted and which journals had enough links to justify turning them into networks (we were 
 concerned about getting author affiliations for all authors).
 
-[pictures of initial networks]
+![tog collaboration network](report_images/tog.png) 
 The next tool we made was a script that generated a gml file describing a collaboration network drawn from a inputted
 set of journals. This allowed for us to see the collaboration networks by opening the file with the graph visualization
 program Gephi. Now we could actually begin to judge potential datasets. Some networks were too dense, some weren't dense
@@ -54,16 +56,18 @@ In addition, once we had a standard representation, it enabled better work paral
 
 [picture]
 After looking at various datasets and online publication libraries and applying our own biases towards certain journals,
-we settled on looking at journals that mainly used [acm website] and [ieee website] as their publication database, and a
+we settled on looking at journals that mainly used [acm website] and [ieee website] as their publication database. A
 few such journals were already in use, helping us test our methods and visualization.
 
-[picture of early javascript visualizations]
+![Early visualization (1/3)](report_images/earlyvis1.png) 
+![Early visualization (2/3)](report_images/earlyvis2.png) 
+![Early visualization (3/3)](report_images/earlyvis3.png)
 In order to visualize these datasets however, we needed a file format useful for communicating everything we new about the
 data, including information we computed offline, to the javascript that actually creates and controls the visualization.
 This meant creating a new script that did essentially the same thing as the dblp to gml script, but instead outputted json
 files. Now, finally, we could begin development of the visualization itself. 
 
-[picture of dense subgraph test]
+[small picture of dense subgraph test]
 Meanwhile, we were also developing a method of finding dense subgraphs within the networks we were generating. After doing
 some reasearch, we found a approximate algorithm for finding dense subgraphs whose time complexity was linear [citation].
 We implemented this, and were able to begin generating json files that described clusters in the data.
@@ -103,7 +107,7 @@ represent them. Matrices provide a compact and informative way of communicating 
 by aggregating the connections flowing out of the subgraph, the resulting node-edge diagrams is much more visually
 managable. 
 
-[other work?]
+[other works?]
 
 ### Questions
 
@@ -130,21 +134,21 @@ using only one of our initial prospects. This limited the journals we could use,
 
 ### Exploratory Data Analysis
 
-[picture of gephi screenshot with clusters draw on]
+![sigplan collaboration network with computed clusters manually drawn on](report_images/sigplan_clustered)
 Our main tool for viewing our data before we had a custom visualization method was Gephi. We used this software extensively 
 to judge the qualities of the prospective collaboration network, as well as the quality of our densest subgraph implementation. 
 There were many graphs that we viewedwith Gephi and were able to immediately determine that we did not want to continue working 
 with them either because they were far too dense, large, or not dense enough, their largest subgraphs only being a handful of 
 nodes. We also used Gephi to evaluate experimental methods of simplifying dense graphs.
 
-[picture of dm network before/after, tog/tvcg network before/after]
+![tog collaboration network unrestricted (left) and restricted to two author articles (right)](report_images/tog_trimmed)
+![sigplan collaboration network unrestricted (left) and restricted to two-to-three author articles (right)](report_images/dm_trimmed)
 
-These methods in the end did not result in new visualizations due to the size of the graph still being an issue, but Gephi
-helped us us come to the final determination faster. 
+These methods in the end did not result in new visualizations due to the size of the graph still being an issue.
 
-We also of course used our own visualizations to explore the data. The main thing this helped with was determining our limits.
-Before our initial visualizations, we did not know either our performance limitations or visual space limitations. This
-information helped guide our data a aquisition and methods themselves. 
+Of course, we also used our own visualizations to explore the data. This helped us determine our limits. Before our initial 
+visualizations, we did not know either our performance limitations or visual space limitations. This information helped guide
+our data a aquisition and methods themselves. 
 
 ### Design Evolution
 

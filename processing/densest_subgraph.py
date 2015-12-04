@@ -241,7 +241,7 @@ def find_connected_subgraphs(nodes, selected_nodes):
       
   return subgraphs
 
-filenames= ["data/tvcg"]
+filenames= ["../data/dm"]
 
 for filename in filenames:
   nodes= {}
