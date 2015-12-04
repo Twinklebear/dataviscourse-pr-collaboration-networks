@@ -120,7 +120,9 @@ BrushView.prototype.select_brushed = function() {
 	var end = Math.ceil(scale.invert(extent[1]));
 	if (end > 2016){
 		end = 2016;
-		start = end - 1;
+		if (start == end){
+			start = end - 1;
+		}
 	}
 
 	console.log("start = " + start + ", end = " + end);
