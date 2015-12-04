@@ -64,12 +64,7 @@ function load_journal(journal, dispatcher){
 		.json("clusters", data_path + journal['clusters'])
 		.csv("stats", data_path + journal['stats'])
 		.onload(function(data) {
-			d3.select("#main_view").selectAll("svg")
-						.attr("opacity", 1)
-						.transition()
-						.duration(300)
-						.attr("opacity", 0)
-						.remove();
+			d3.select("#main_view").selectAll("svg").remove();
 			console.log("Loaded");
 			var journal = data['journal'];
 			var clusters = data['clusters'];
