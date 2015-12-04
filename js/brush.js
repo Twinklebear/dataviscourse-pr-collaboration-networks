@@ -7,13 +7,13 @@ var BrushView = function(event_handler) {
     this.brush_year_start = 1960;
     this.brush_year_end = 2015;
 
-    this.width = d3.select("#brush").node().getBoundingClientRect().width - this.margin.left - this.margin.right;
+	this.brush_div = d3.select("#brush");
+    this.width = this.brush_div.node().getBoundingClientRect().width - this.margin.left - this.margin.right;
     this.height = 300 - this.margin.top - this.margin.bottom;
-    this.svg = d3.select("#brush").append("svg")
+    this.svg = this.brush_div.append("svg")
 		.attr("width", this.width + this.margin.left + this.margin.right)
 		.attr("height", this.height + this.margin.top + this.margin.bottom);
 
-	console.log("width = " + this.width);
     this.x_scale = d3.scale.ordinal().rangeRoundBands([0, this.width], 0.3);
     this.y_scale = d3.scale.linear().range([this.height, 0]);
 
@@ -38,12 +38,15 @@ var BrushView = function(event_handler) {
 	this.event_handler = event_handler;
 	// Setup ourself to listen for events we want
 	event_handler.on("index_loaded.brush_view", function(index, authors) {
+		self.brush_div.style("display", "none");
 		self.authors = authors;
 	});
 	event_handler.on("journal_selected.brush_view", function(journal, clusters, stats) {
+		self.brush_div.style("display", "");
 		self.select_journal(stats);
 	});
 	event_handler.on("author_selected.brush_view", function(author_id) {
+		self.brush_div.style("display", "");
 		self.author_selected(author_id);
 	});
 }
@@ -70,7 +73,6 @@ BrushView.prototype.author_selected = function(author_id) {
 			data[a.year] += 1;
 		}
 	}
-	console.log(data);
 	// Flatten to an array that draw_histogram expects
 	data = Object.keys(data).map(function(k) {
 		return { year: +k, count: data[k] };
@@ -115,7 +117,6 @@ BrushView.prototype.draw_histogram = function(data) {
 BrushView.prototype.select_brushed = function() {
 	var scale = d3.scale.linear().domain(this.x_scale.domain()).range(this.x_scale.range());
 	var extent = this.brush.extent();
-	console.log("extent = " + extent);
 	var start = Math.ceil(scale.invert(extent[0]));
 	var end = Math.ceil(scale.invert(extent[1]));
 	if (end > 2016){
@@ -125,7 +126,6 @@ BrushView.prototype.select_brushed = function() {
 		}
 	}
 
-	console.log("start = " + start + ", end = " + end);
 	// Snap the rect edges
 	d3.select(".brush").transition().call(this.brush.extent([scale(start), scale(end)]));
 	this.event_handler.brush_changed(start, end - 1);
