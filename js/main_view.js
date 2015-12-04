@@ -466,8 +466,7 @@ MainView.prototype.displaySummaryGraph = function(summary_data){
 			.attr("class", "summary")
 			.attr("width", w)
 			.attr("height", h);
-	vis.style("background-color", "#232c32")
-		.attr("opacity", 0)
+	vis.attr("opacity", 0)
 		.transition()
 		.duration(700)
 		.attr("opacity", 1);
@@ -502,7 +501,6 @@ MainView.prototype.displaySummaryGraph = function(summary_data){
 						.duration(250)
 						// .style("cursor", "none")     
 						.attr("font-size","2.0em")
-						.attr("fill", "white")
 						.attr("x",function(d, i) {return radius(d.size)/3; })
 						.attr("y",function(d, i) { return radius(d.size)/3;})
 				})
@@ -518,7 +516,6 @@ MainView.prototype.displaySummaryGraph = function(summary_data){
 					.transition()
 					.duration(250)
 					.attr("font-size","1.5em")
-					.attr("color", "white")
 					.attr("x",function(d, i) {return radius(d.size)/5; })
 					.attr("y",function(d, i) { return radius(d.size)/5;})
 				})
@@ -536,20 +533,16 @@ MainView.prototype.displaySummaryGraph = function(summary_data){
 		.attr("cx", function(d) { return d.x; })
 		.attr("cy", function(d) { return d.y; })
 		.attr("r", function(d){return radius(d.size)})
-		.attr("fill",function(d){return fill(d.group)})
+		.attr("fill", function(d){return fill(d.group)})
 		.attr('fill-opacity', 0.85)
 
 	//TEXT
 	node.append("text")
-		.attr("opacity", 0)
-		.transition()
-		.duration(700)
-		.attr("opacity", 1)
 		.text(function(d, i) { return d.name; })
 		.attr("x",    function(d, i) {return radius(d.size)/5; })
 		.attr("y",            function(d, i) { return radius(d.size)/5;})
 		.attr("font-size",    function(d, i) {  return  "1.5em"; })
-		.attr("font-color", "white");
+		.attr("stroke", "black");
 
 	force.on("tick", function(e) {
 		node.attr("transform", function(d, i) {     
