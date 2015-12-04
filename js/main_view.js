@@ -810,6 +810,11 @@ MainView.prototype.display = function(data){
 				.data(net.nodes, nodeid);
 
 		node.exit().remove();
+		var drag_event = d3.behavior.drag()
+			.on("dragstart", function(){
+				// Don't click the node if we're dragging
+				d3.event.sourceEvent.stopPropagation()
+			});
 		var circle = node.enter().append("circle")
 			.attr("class", function(d) { return "node" + (d.size?"":" leaf"); })
 			.attr("r", function(d) { return d.size ? d.size + dr : dr+1; })
@@ -822,6 +827,7 @@ MainView.prototype.display = function(data){
 			.style("fill", function(d) { 
 				return fill(d.group); 
 			})
+			.call(drag_event)
 			.on("dblclick", function(d) {
 				tooltip.text("").style("visibility", "hidden");
 				expand[d.group] = !expand[d.group];
@@ -830,6 +836,9 @@ MainView.prototype.display = function(data){
 			.on("click", function(d){
 				//TODO: hightlight
 				tooltip.text("").style("visibility", "hidden");
+				if (d3.event.defaultPrevented){
+					return;
+				}
 				if(!d.nodes){
 					self.selectedAuthorId = -1;
 					self.event_handler.author_selected(d.author_id);
