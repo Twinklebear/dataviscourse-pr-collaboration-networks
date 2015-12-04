@@ -9,17 +9,20 @@ Authors: Kevin Wall, Mike Liu, Will Usher
 **_Networks_**
 
 ![Dense subgraphs are replaced with small matrices](report_images/nodetrix1.png) 
+
 [citation]
 Early in the semester, Jean-Daniel Fekete gave a talk at the SCI institute on visualizing graphs using matrices 
 in a method called NodeTrix, introduced in a paper he coauthored. This gave us the idea to use hierarchical nodes
 to represent dense subgraphs instead of small matrices. 
 
 ![Coauthorship network of scientists in field of network science](report_images/netscience.png) 
+
 We looked at many different network/graph datasets available on the Stanford Network Analysis Project's website.
 However, these graphs were extremely large and were in general not very rich in information, only describing
 the graph itself and not telling much about the nodes.
 
 ![dblp logo](report_images/dblp.png) 
+
 After talking with the instructor, we were put on the trail of dblp, which is a large database of research journals,
 articles, and authors. We decided we could make use this data to generate collaboration networks.
 
@@ -36,6 +39,7 @@ affiliations could be an expensive task, so we needed to know what websites to t
 knowing what journals we were going to use, this task could not begin.
 
 ![Output of journal analysis tool](report_images/journals.png) 
+
 In order to find these journals, we began making tools to analyze the data. The first such tool was a simple python 
 script that collected endpoint urls for a sample of publications within every journal in the dblp database and printed
 out a their distribution, as well as which journals possessed the most links to publication databases. This told us 
@@ -43,6 +47,7 @@ where the articles were hosted and which journals had enough links to justify tu
 concerned about getting author affiliations for all authors).
 
 ![tog collaboration network](report_images/tog.png) 
+
 The next tool we made was a script that generated a gml file describing a collaboration network drawn from a inputted
 set of journals. This allowed for us to see the collaboration networks by opening the file with the graph visualization
 program Gephi. Now we could actually begin to judge potential datasets. Some networks were too dense, some weren't dense
@@ -60,8 +65,11 @@ we settled on looking at journals that mainly used [acm website] and [ieee websi
 few such journals were already in use, helping us test our methods and visualization.
 
 ![Early visualization (1/3)](report_images/earlyvis1.png) 
+
 ![Early visualization (2/3)](report_images/earlyvis2.png) 
+
 ![Early visualization (3/3)](report_images/earlyvis3.png)
+
 In order to visualize these datasets however, we needed a file format useful for communicating everything we new about the
 data, including information we computed offline, to the javascript that actually creates and controls the visualization.
 This meant creating a new script that did essentially the same thing as the dblp to gml script, but instead outputted json
@@ -81,6 +89,7 @@ We implemented this, and were able to begin generating json files that described
 ### Final Work
 
 ![Sigplan collaboration network with curated subgraph circled in red](report_images/sigplan_curated.png)
+
 It became clear that many of our datasets were simply too large to visualize given our current methods (and were thus 
 outside our scope). In order to reduce their size, we needed new tools to filter the data. This gave rise to two new 
 developments. First, we modified the densest subgraph script to, after finding the densest subgraphs, find all the nodes 
@@ -90,6 +99,7 @@ with Gephi, but also edit them with Gephi and then turn them back into json file
 collaboration networks with a manageable number of nodes. 
 
 ![Bad clustering of tist collaboration network (left), good clustering (right)](report_images/bad_good_clusters.png)
+
 Due to some positive early tests on the clustering implementation, some significant issues with it slipped through into
 late in development. What we discovered was that we were generating clusters of nodes that were unconnected and/or had
 a large number of loosely connected nodes. After analyzing the results and the implementation, we discovered that our 
@@ -103,7 +113,8 @@ clusters. On the right, the clusters now get their own bundles and more accurate
 
 ## Overview and Motivation
 
-![Screenshot of Collaboration Networks visualization](report_images/full1.png)
+![Screenshot of Collaboration Networks visualization](report_images/journal_bundles_expanded.png)
+
 Collaboration Networks is an interactive visualization of author collaboration networks drawn from several ACM journals. It demonstrates
 a way to effectively visualize graphs that contain dense subgraphs without breaking with the visual language of nodes
 and edges.
@@ -143,6 +154,7 @@ using only one of our initial prospects. This limited the journals we could use,
 ## Exploratory Data Analysis
 
 ![sigplan collaboration network with computed clusters manually drawn on](report_images/sigplan_clustered.png)
+
 Our main tool for viewing our data before we had a custom visualization method was Gephi. We used this software extensively 
 to judge the qualities of the prospective collaboration network, as well as the quality of our densest subgraph implementation. 
 There were many graphs that we viewed with Gephi and were able to immediately determine that we did not want to continue working 
@@ -150,6 +162,7 @@ with them either because they were far too dense, large, or not dense enough, th
 nodes. We also used Gephi to evaluate experimental methods of simplifying dense graphs.
 
 ![tog collaboration network unrestricted (left) and restricted to two author articles (right)](report_images/tog_trimmed.png)
+
 ![sigplan collaboration network unrestricted (left) and restricted to two-to-three author articles (right)](report_images/dm_trimmed.png)
 
 These methods in the end did not result in new visualizations due to the size of the graph still being an issue.
@@ -219,7 +232,9 @@ who the author collaborated with over time.
 ## Evaluation
 
 ![sigplan visualization with expanded bundle(left), with closed bundle(right)](report_images/sigplan_bundle.png)
+
 ![tist visualization with expanded bundle(left), with closed bundle(right)](report_images/tist_bundle.png)
+
 One of the things we were worried about when coming up with this visualization was that dense clusters would always refer
 to articles with many authors. It turned out that this behavior was common in our final visualization (although we believe that 
 this could still be solved with more advanced clustering methods), however, the surprising result was that this wasn't necessarily
