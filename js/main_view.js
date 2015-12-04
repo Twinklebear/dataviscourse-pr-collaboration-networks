@@ -843,7 +843,9 @@ MainView.prototype.display = function(data){
 				if(d.size==1){
 					if(d.nodes[0].name){
 						var n = d.nodes[0];
-						return tooltip.text(n.name + ", " + n.affiliation).style("font-size", "2.0em").style("background-color","white").style("visibility", "visible");
+						return tooltip.text(n.name)
+								.style("background-color","rgba(255, 255, 255, 0.5)")
+								.style("visibility", "visible");
 					}
 					else
 						return tooltip.text("").style("visibility", "visible");
