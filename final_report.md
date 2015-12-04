@@ -164,7 +164,57 @@ our data a acquisition and methods themselves.
 
 ## Implementation
 
-[discussion]
+Our final visualization consists of three linked views. The main view is a graph showing the authors in
+the journal and collaborations between them where dense subgraphs of authors (those who frequently collaborate)
+are collapsed into bundles. A sidebar is shown which gives a more detailed summary of what's being shown in
+the main view, such as a list of papers in the journal or list of paper's by a specific author. Finally we
+provide a histogram of the papers published in the journal or by the author each year which can be brushed
+to select only papers within some time range. This brushing updates the main and side bar views to show
+just the papers and data within that selection.
+
+In the main view we show a few different force directed graph layouts. The view greeting the user is
+a summary of the journals available in our database, where each journal is a node and they're sized by
+the number of papers in the journal. This will let them get a rough overview of which journals we have and
+what their contents might be like, e.g. old vs. young journals, those with many publications etc. The user
+can then select a journal either by double clicking the node or selecting the journal from the dropdown menu.
+
+![Landing view showing overivew of journals](report_images/landing.png)
+
+When a journal is selected we show a slightly curated network of authors in the journal and group
+those who frequently collaborate into clusters and bundle them as a single node. The curation is done
+to reduce the size of the dataset to more interesting clusters and subgraphs. In the journal view the
+clusters bundled as single larger nodes can be expanded by double clicking them to view the hidden dense
+collaboration network. The bundling of nodes helps keep the graph from becoming extremely cluttered
+and unreadable while also directing attention to interesting clusters (since the bundled nodes are bigger).
+
+![Full set of views showing a journal](report_images/journal.png)
+
+To keep the clusters visually grouped once expanded we color the nodes of the group the same color
+and draw a transparent convex hull around the nodes. Thus even for extremely dense and hard to read clusters
+the idea of "this is a dense collaborating group" is conveyed effectively. It's easy to see that they're all
+in the same convex hull and the mess of edges connecting all the authors to each other keeps the clump together.
+Additionally the edge between two clusters or authors is used to convey how frequently they collaborate
+by making it thicker in the case of more collaborations.
+
+![Unexpanded journal bundles](report_images/final_data_tist.png)
+
+![Expanded journal bundles](report_images/final_data_tist_expanded.png)
+
+In the journal view the sidebar shows a list of the papers published in the journal along with
+some more details about the journal such as number of articles and years of publications in the database.
+The article listing shows the title of the article, its authors, the year it was published and a DOI url
+to read the paper. The histogram view at the bottom shows the distribution of articles over time and can
+be brushed to select a subregion of time to view. This time filtering is applied both to the graph in the main
+view and to the list of articles in the sidebar so we can cut the view down to just collaborations over a few
+years instead of all time.
+
+![Author detail view](report_images/author.png)
+
+From this view the user can select an author to learn more about by either clicking the node in the graph
+or clicking their name on the list of publications. In the author view we show a graph of only those who
+have collaborated with them and in the side bar list their publications, affiliation and so on. Like in
+the journal view we also show the distribution of articles over time which the user can brush along to see
+who the author collaborated with over time.
 
 ## Evaluation
 
