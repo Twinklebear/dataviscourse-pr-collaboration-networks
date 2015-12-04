@@ -463,8 +463,7 @@ MainView.prototype.displaySummaryGraph = function(summary_data){
 		.remove();
 
 	vis = vis.append("svg")
-			.attr("class", "summary")
-			.attr("width", w)
+			.attr("class", "summary col-md-12")
 			.attr("height", h);
 	vis.attr("opacity", 0)
 		.transition()
