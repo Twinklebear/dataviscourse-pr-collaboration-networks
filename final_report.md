@@ -199,24 +199,23 @@ force--directed graphs, and bundling nodes (to show/hide dense clusters).
 
 Convex hulls were useful for showing nodes in clusters, but not that good at displaying the network of the data.
 A force--directed graph was good for showing both clusters and the network but it don’t help to 
-simplify a hierarchical network graph data. Overall, we found that bundle nodes would be a good way of
-interacting with our data. It is not only showing how authors are grouped, but also present the network of
-authors based on their publications’ record. We learned that D3.js is not very good at handling large amount
-of data from the performance side. Therefore, we needed to reduce the size of data to be displayed, but keep
-the interesting information at the same time and still give an option for users to visualize the whole data.
-We decided to only show the network within each publication at a time. We preprocessed the data by grouping
-them based on the journal type and by clustering authors within a journal and filtering display nodes based
-on the density of clusters.  After reorganizing data, we crawl information that we thought would be useful
-to have in our visualization tool from each publication website. We had to change the data structure,
-the way how we store data, a couple times in order to improve the performance of our tool. Once we were
-able to display these data in our tool, we went through a couple iterations on the design of user interface.
-We added summary of data when no journal is selected. The summary gives an idea what data is available in
-our database. In addition, we made the summary’s bubble chart expend a little when a mouse over a chart.
-Network of an author’s collaboration is another thing that we thought would be useful to look at an author’s
-immediate collaborators based on the publications. It would help us to discover the possible reasons behind
-their collaborations. It would be that they were at the same university or some other reasons. We also
-make our side bar where it displays all the available publications based on each user’s filter to be
-more interactive that user can make their discovery much faster. 
+simplify a hierarchical network graph data. Overall, we found that bundling nodes would be a good way to
+interact with our data and simplify dense clusters. It not only shows how authors are grouped, but also
+presents the network of
+authors based on their colaborations.
+
+We learned that D3.js is not very performant when dealing with large amounts of data from,
+as a result we needed to reduce the size of data to be displayed, while keeping the interesting parts
+of the network. We reduced the data by clustering authors within a journal and filtering nodes based
+on the density of clusters. Our visualization design went through a few iterations until we ended up on
+something we were happy with. We added summary of journals in our database when no journal is selected and
+an index overview to greet the user with initially. The summary gives an idea what data is available in
+our database to explore. In addition, we made the summary’s bubble chart expand some when a moused over.
+Additionally the network of an author's collaboration with others is something we thought would be useful
+to explore, so this view was added as well. This view would help us to discover the possible reasons behind
+their collaborations, such as working at the same university or lab. We also
+have our side bar which displays all the available publications filter to be more interactive
+so the user can quickly select a year of publications to view and cut the dataset down some.
 
 ## Implementation
 
