@@ -29,7 +29,7 @@ articles, and authors. We decided we could make use this data to generate collab
 
 ### Early Work
 
-We already new where our data was going to come from (the dblp database), and we knew what we wanted to do with it, 
+We already knew where our data was going to come from (the dblp database), and we knew what we wanted to do with it, 
 but a major roadblock to development was still getting the specific data we wanted to show (or at least a 
 representative sample) in the format we wanted it in. As an example, we anticipated that scraping the author 
 affiliations could be an expensive task, so we needed to know what websites to target as soon as possible. Without 
@@ -60,14 +60,14 @@ we settled on looking at journals that mainly used [acm website] and [ieee websi
 few such journals were already in use, helping us test our methods and visualization.
 
 ![Early visualization (1/3)](report_images/earlyvis1.png) 
-![Early visualization (2/3)](report_images/earlyvis2.png) 
+![Early visualization (2/3)](report_images/earlyvis2.png)
 ![Early visualization (3/3)](report_images/earlyvis3.png)
-In order to visualize these datasets however, we needed a file format useful for communicating everything we new about the
-data, including information we computed offline, to the javascript that actually creates and controls the visualization.
+In order to visualize these datasets however, we needed a file format useful for communicating everything we knew about the
+data to the javascript that actually creates and controls the visualization.
 This meant creating a new script that did essentially the same thing as the dblp to gml script, but instead outputted json
 files. Now, finally, we could begin development of the visualization itself. 
 
-[small picture of dense subgraph test]
+![Test graph](report_images/graph_small.png)
 Meanwhile, we were also developing a method of finding dense subgraphs within the networks we were generating. After doing
 some research, we found a approximate algorithm for finding dense subgraphs whose time complexity was linear [citation].
 We implemented this, and were able to begin generating json files that described clusters in the data.
@@ -80,7 +80,7 @@ We implemented this, and were able to begin generating json files that described
 
 ### Final Work
 
-![Sigplan collaboration network with curated subgraph circled in red](report_images/sigplan_curated.png)
+![Sigplan collaboration network with curated subgraph circled in red](report_images/sigplan_curated.png) 
 It became clear that many of our datasets were simply too large to visualize given our current methods (and were thus 
 outside our scope). In order to reduce their size, we needed new tools to filter the data. This gave rise to two new 
 developments. First, we modified the densest subgraph script to, after finding the densest subgraphs, find all the nodes 
@@ -160,7 +160,13 @@ our data a acquisition and methods themselves.
 
 ## Design Evolution
 
-[discussion]
+![First design concept](report_images/visualization_design_concept1.png)
+
+Before we had decided fully on networks, we created a intial concept of how we could visualize one. In the above image, you can see
+our ideas beginning to take shape. Large-scale known grouping information is visualized as large dotted circles or tightly fitting shapes
+(We used both in order to compare the different methods). Clusters are grouped using solid black circles and the internal edges are
+not rendered (this doesn't show in most clusters because this visualization was only intended to get ideas across). When a node is selected, edges are shown (if hidden)
+and highlighted using red if the edges leave a cluster, and yellow if they are internal. 
 
 ## Implementation
 
