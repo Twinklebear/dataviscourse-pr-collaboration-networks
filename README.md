@@ -2,6 +2,14 @@
 
 Authors: Kevin Wall, Mike Liu, Will Usher
 
+# Process Book
+
+Our final documents are listed below
+
+- [Process Book](process_book.pdf)
+- [Screen Cast](https://www.youtube.com/watch?v=7FwZnQP6sYk&feature=youtu.be)
+- [Website](http://sci.utah.edu/~mliu/finalproject/)
+
 # Project Milestone
 
 The milestone report is under [milestone\_report.pdf](milestone_report.pdf). Since our data is a bit too
