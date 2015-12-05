@@ -187,35 +187,35 @@ not rendered (this doesn't show in most clusters because this visualization was 
 and highlighted using red if the edges leave a cluster, and yellow if they are internal. 
 
 We discussed many different ideas on how to visualize the graph data that would help us discover
-interesting information amount the collaborations in the dataset. We had a few different ideas on what
-method of visualizing the data would be most useful.
+interesting information amount the collaborations in the dataset. We thought about clustering data based on each node's affiliation, journal type, authors, or the year published to show different networks. We had a few different ideas on what
+method of visualizing the data would be most useful. They are the matrics method from the talk, voronoi diagram, and bubble set.
 We used Gephi to help us validate some ideas and settled on a hierarchy network graph could be
 an intuitive way to discover insights behind how researchers collaborated and published their findings.
 
-We were considering using a bubble chart library but found the library was pretty buggy 
+We were considering using a bubble set library but found the library was pretty buggy 
 and would require too much time to fix it. Later we found some D3.js examples with parts of components
 that we are looking at for our visualization like convex hulls (to show grouping of nodes),
 force--directed graphs, and bundling nodes (to show/hide dense clusters).
 
-Convex hulls were useful for showing nodes in clusters, but not that good at displaying the network of the data.
+Convex hulls were useful for showing nodes in clusters, but not that good at displaying the network of the data (See Figure 6).
 A force--directed graph was good for showing both clusters and the network but it don’t help to 
-simplify a hierarchical network graph data. Overall, we found that bundling nodes would be a good way to
-interact with our data and simplify dense clusters. It not only shows how authors are grouped, but also
+simplify a hierarchical network graph data (See Figure 7). Overall, we found that bundling nodes would be a good way to
+interact with our data and simplify dense clusters (See Figure 8). It not only shows how authors are grouped, but also
 presents the network of
-authors based on their colaborations.
+authors based on their colaborations. We ended up adapting the structure of bundling node example for our network graph visualization. 
 
 We learned that D3.js is not very performant when dealing with large amounts of data from,
 as a result we needed to reduce the size of data to be displayed, while keeping the interesting parts
-of the network. We reduced the data by clustering authors within a journal and filtering nodes based
+of the network. It was impossible to make data understandable. Therefore, We reduced the data by clustering authors within a journal and filtering nodes based
 on the density of clusters. Our visualization design went through a few iterations until we ended up on
-something we were happy with. We added summary of journals in our database when no journal is selected and
+something we were happy with. We were thinking about adding different shape for distinguish clusters, but it made the visualization harder to understand. We only use the same color to show nodes are in the same cluster. We added summary of journals in our database when no journal is selected and
 an index overview to greet the user with initially. The summary gives an idea what data is available in
 our database to explore. In addition, we made the summary’s bubble chart expand some when a moused over.
 Additionally the network of an author's collaboration with others is something we thought would be useful
 to explore, so this view was added as well. This view would help us to discover the possible reasons behind
 their collaborations, such as working at the same university or lab. We also
 have our side bar which displays all the available publications filter to be more interactive
-so the user can quickly select a year of publications to view and cut the dataset down some.
+so the user can quickly select an author or doi of publications to view. We also have brush on a histogram that shows the amount of publications for each year for the selected journal and a user could selection the years they are intersted in finding and look at the network of authors by cutting the dataset down with the filter on the period of time.
 
 ## Implementation
 
