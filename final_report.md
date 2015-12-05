@@ -57,7 +57,7 @@ This script was also useful because it formed a basis for future scripts. It sho
 demonstrated the need for a streaming XML parser due to the immense size of the database, and introduced an 
 object-oriented model of Journals, Articles, and Authors. This made further analysis and processing much easier because
 we could simply access lists of class instances with useful per-instance information such as links to other instances.
-In addition, once we had a standard representation, it enabled better work parallelization.
+In addition, once we had a standard representation, it enabled better work parallelization. 
 
 After looking at various datasets and online publication libraries and applying our own biases towards certain journals,
 we settled on looking at journals that were published by ACM and hosted on the
@@ -95,7 +95,7 @@ we created a script that moved between our JSON file format and gml. This allowe
 with Gephi, but also edit them with Gephi and then turn them back into JSON files. This allowed us to create curated 
 collaboration networks with a manageable number of nodes. 
 
-![Bad clustering of TIST collaboration network (left), good clustering (right)](report_images/bad_good_clusters.png)
+![Bad clustering of TIST collaboration network (left), good clustering (right)\label{good_bad_clusters}](report_images/bad_good_clusters.png)
 
 Due to some positive early tests on the clustering implementation, some significant issues with it slipped through into
 late in development. What we discovered was that we were generating clusters of nodes that were unconnected and/or had
@@ -103,7 +103,7 @@ a large number of loosely connected nodes. After analyzing the results and the i
 algorithm was running into situation where the cluster we were looking for were narrowly losing to large collections of
 several clusters (in terms of density), especially when dealing with low densities. Our solution was to increase our minimum
 density requirements and to implement a special subgraph selection step that prefers smaller clusters if there exists close
-alternatives. You can see all this in figure 11; on the left you see the system attempting to bundle several disconnected
+alternatives. You can see all this in figure \ref{good_bad_clusters}; on the left you see the system attempting to bundle several disconnected
 clusters. On the right, the clusters now get their own bundles and more accurately reflect the structure of the graph. 
 
 [TODO MIKE: MORE discussion of final development of visualization]
@@ -172,9 +172,9 @@ our data a acquisition and methods themselves.
 
 ## Design Evolution
 
-![First design concept](report_images/visualization_design_concept1.png) 
+![First design concept\label{concept1}](report_images/visualization_design_concept1.png) 
 
-Before we had decided fully on networks, we created a initial concept of how we could visualize one. In figure 16, you can see
+Before we had decided fully on networks, we created a initial concept of how we could visualize one. In figure \ref{concept1}, you can see
 our ideas beginning to take shape. Large-scale known grouping information is visualized as large dotted circles or tightly fitting shapes
 (We used both in order to compare the different methods). Clusters are grouped using solid black circles and the internal edges are
 not rendered (this doesn't show in most clusters because this visualization was only intended to get ideas across). When a node is selected, edges are shown (if hidden)
@@ -267,7 +267,8 @@ who the author collaborated with over time.
 
 ## Evaluation
 
-![SIGPLAN visualization with expanded bundle(left), with closed bundle(right)](report_images/sigplan_bundle.png)
+![SIGPLAN visualization with expanded bundle(left), with closed bundle(right)
+\label{sigplan_bundle}](report_images/sigplan_bundle.png)
 
 ![TIST visualization with expanded bundle(left), with closed bundle(right)
 \label{tist_bundle}](report_images/tist_bundle.png)
