@@ -15,15 +15,15 @@ in a method called [NodeTrix](http://research.microsoft.com/en-us/um/people/nath
 introduced in a paper he coauthored. This gave us the idea to use hierarchical nodes
 to represent dense subgraphs instead of small matrices. 
 
-![Coauthorship network of scientists in field of network science](report_images/netscience.png) 
+![Co--authorship network of scientists in field of network science](report_images/netscience.png) 
 
 We looked at many different network/graph datasets available on the Stanford Network Analysis Project's website.
 However, these graphs were extremely large and were in general not very rich in information, only describing
 the graph itself and not telling much about the nodes.
 
-![dblp logo](report_images/dblp.png) 
+![DBLP logo](report_images/dblp.png) 
 
-After talking with the instructor, we were put on the trail of dblp, which is a large database of research journals,
+After talking with the instructor, we were put on the trail of DBLP, which is a large database of research journals,
 articles, and authors. We decided we could make use this data to generate collaboration networks.
 
 ### Proposal and Milestone Report
@@ -32,7 +32,7 @@ Our project proposal and milestone report are attached at the end of the PDF
 
 ### Early Work
 
-We already knew where our data was going to come from (the dblp database), and we knew what we wanted to do with it, 
+We already knew where our data was going to come from (the DBLP database), and we knew what we wanted to do with it, 
 but a major roadblock to development was still getting the specific data we wanted to show (or at least a 
 representative sample) in the format we wanted it in. As an example, we anticipated that scraping the author 
 affiliations could be an expensive task, so we needed to know what websites to target as soon as possible. Without 
@@ -41,28 +41,29 @@ knowing what journals we were going to use, this task could not begin.
 ![Output of journal analysis tool](report_images/journals.png) 
 
 In order to find these journals, we began making tools to analyze the data. The first such tool was a simple python 
-script that collected endpoint urls for a sample of publications within every journal in the dblp database and printed
+script that collected endpoint URLs for a sample of publications within every journal in the DBLP database and printed
 out a their distribution, as well as which journals possessed the most links to publication databases. This told us 
 where the articles were hosted and which journals had enough links to justify turning them into networks (we were 
 concerned about getting author affiliations for all authors).
 
 ![tog collaboration network](report_images/tog.png) 
 
-The next tool we made was a script that generated a gml file describing a collaboration network drawn from a inputted
+The next tool we made was a script that generated a GML file describing a collaboration network drawn from a inputted
 set of journals. This allowed for us to see the collaboration networks by opening the file with the graph visualization
 program Gephi. Now we could actually begin to judge potential datasets. Some networks were too dense, some weren't dense
 enough. Some had interesting structures we wished to visualize. 
 
-This script was also useful because it formed a basis for future scripts. It showed how we could read the dblp database, 
-demonstrated the need for a streaming xml parser due to the immense size of the database, and introduced an 
+This script was also useful because it formed a basis for future scripts. It showed how we could read the DBLP database, 
+demonstrated the need for a streaming XML parser due to the immense size of the database, and introduced an 
 object-oriented model of Journals, Articles, and Authors. This made further analysis and processing much easier because
 we could simply access lists of class instances with useful per-instance information such as links to other instances.
 In addition, once we had a standard representation, it enabled better work parallelization.
 
 [picture]
 After looking at various datasets and online publication libraries and applying our own biases towards certain journals,
-we settled on looking at journals that mainly used [acm website] and [ieee website] as their publication database. A
-few such journals were already in use, helping us test our methods and visualization.
+we settled on looking at journals that were published by ACM and hosted on the
+[digital library](http://dl.acm.org/) and published by IEEE where we could use their API to get affiliation 
+information.
 
 ![Early visualization (1/3)](report_images/earlyvis1.png) 
 
@@ -71,31 +72,30 @@ few such journals were already in use, helping us test our methods and visualiza
 ![Early visualization (3/3)](report_images/earlyvis3.png)
 
 In order to visualize these datasets however, we needed a file format useful for communicating everything we new about the
-data, including information we computed offline, to the javascript that actually creates and controls the visualization.
+data, including information we computed offline, to the Javascript that actually creates and controls the visualization.
 
-This meant creating a new script that did essentially the same thing as the dblp to gml script, but instead outputted json
-files. Now, finally, we could begin development of the visualization itself. 
+This meant creating a new script that did essentially the same thing as the DBLP to gml script, but instead outputted JSON files. Now, finally, we could begin development of the visualization itself. 
 
 ![Test graph](report_images/graph_small.png)
 Meanwhile, we were also developing a method of finding dense subgraphs within the networks we were generating. After doing
 some research, we found a approximate algorithm for finding dense subgraphs whose time complexity was linear [citation].
-We implemented this, and were able to begin generating json files that described clusters in the data.
+We implemented this, and were able to begin generating JSON files that described clusters in the data.
 
 [discussion of early development of visualization]
 
 ### Final Work
 
-![Sigplan collaboration network with curated subgraph circled in red](report_images/sigplan_curated.png)
+![SIGPLAN collaboration network with curated subgraph circled in red](report_images/sigplan_curated.png)
 
 It became clear that many of our datasets were simply too large to visualize given our current methods (and were thus 
 outside our scope). In order to reduce their size, we needed new tools to filter the data. This gave rise to two new 
 developments. First, we modified the densest subgraph script to, after finding the densest subgraphs, find all the nodes 
-connected to those subgraphs, and output the resulting graph as a modified version of the inputted json file. Second, 
-we created a script that moved between our json file format and gml. This allowed us not only to visualize our graphs 
-with Gephi, but also edit them with Gephi and then turn them back into json files. This allowed us to create curated 
+connected to those subgraphs, and output the resulting graph as a modified version of the inputted JSON file. Second, 
+we created a script that moved between our JSON file format and gml. This allowed us not only to visualize our graphs 
+with Gephi, but also edit them with Gephi and then turn them back into JSON files. This allowed us to create curated 
 collaboration networks with a manageable number of nodes. 
 
-![Bad clustering of tist collaboration network (left), good clustering (right)](report_images/bad_good_clusters.png)
+![Bad clustering of TIST collaboration network (left), good clustering (right)](report_images/bad_good_clusters.png)
 
 Due to some positive early tests on the clustering implementation, some significant issues with it slipped through into
 late in development. What we discovered was that we were generating clusters of nodes that were unconnected and/or had
@@ -103,14 +103,14 @@ a large number of loosely connected nodes. After analyzing the results and the i
 algorithm was running into situation where the cluster we were looking for were narrowly losing to large collections of
 several clusters (in terms of density), especially when dealing with low densities. Our solution was to increase our minimum
 density requirements and to implement a special subgraph selection step that prefers smaller clusters if there exists close
-alternatives. You can see all this in the image above; on the left you see the system attempting to bundle sveral disconnected
+alternatives. You can see all this in the image above; on the left you see the system attempting to bundle several disconnected
 clusters. On the right, the clusters now get their own bundles and more accurately reflect the structure of the graph. 
 
 [TODO MIKE: MORE discussion of final development of visualization]
 
 In our final visualization we use a force directed graph with node bundles, the nodes are the authors from
 the curated datasets and we bundle those within the clusters that were computed previously. This allows
-our javascript code to remain relatively light weight as it doesn't need to perform a lot of heavy computation.
+our Javascript code to remain relatively light weight as it doesn't need to perform a lot of heavy computation.
 Additionally we use the list of an author's or journal's articles from DBLP to show a listing on the side
 where the user can go read a journal or get more details about its authors.
 
@@ -158,7 +158,7 @@ problematic.
 
 ## Exploratory Data Analysis
 
-![sigplan collaboration network with computed clusters manually drawn on](report_images/sigplan_clustered.png)
+![SIGPLAN collaboration network with computed clusters manually drawn on](report_images/sigplan_clustered.png)
 
 Our main tool for viewing our data before we had a custom visualization method was Gephi. We used this software extensively 
 to judge the qualities of the prospective collaboration network, as well as the quality of our densest subgraph implementation. 
@@ -166,9 +166,9 @@ There were many graphs that we viewed with Gephi and were able to immediately de
 with them either because they were far too dense, large, or not dense enough, their largest subgraphs only being a handful of 
 nodes. We also used Gephi to evaluate experimental methods of simplifying dense graphs.
 
-![tog collaboration network unrestricted (left) and restricted to two author articles (right)](report_images/tog_trimmed.png)
+![TOG collaboration network unrestricted (left) and restricted to two author articles (right)](report_images/tog_trimmed.png)
 
-![sigplan collaboration network unrestricted (left) and restricted to two-to-three author articles (right)](report_images/dm_trimmed.png)
+![SIGPLAN collaboration network unrestricted (left) and restricted to two-to-three author articles (right)](report_images/dm_trimmed.png)
 
 These methods in the end did not result in new visualizations due to the size of the graph still being an issue.
 
@@ -180,7 +180,7 @@ our data a acquisition and methods themselves.
 
 ![First design concept](report_images/visualization_design_concept1.png)
 
-Before we had decided fully on networks, we created a intial concept of how we could visualize one. In the above image, you can see
+Before we had decided fully on networks, we created a initial concept of how we could visualize one. In the above image, you can see
 our ideas beginning to take shape. Large-scale known grouping information is visualized as large dotted circles or tightly fitting shapes
 (We used both in order to compare the different methods). Clusters are grouped using solid black circles and the internal edges are
 not rendered (this doesn't show in most clusters because this visualization was only intended to get ideas across). When a node is selected, edges are shown (if hidden)
@@ -198,11 +198,11 @@ that we are looking at for our visualization like convex hulls (to show grouping
 force--directed graphs, and bundling nodes (to show/hide dense clusters).
 
 Convex hulls were useful for showing nodes in clusters, but not that good at displaying the network of the data.
-A force--directed graph was good for showing both clusters and the network but it don’t help to 
+A force--directed graph was good for showing both clusters and the network but it don't help to 
 simplify a hierarchical network graph data. Overall, we found that bundling nodes would be a good way to
 interact with our data and simplify dense clusters. It not only shows how authors are grouped, but also
 presents the network of
-authors based on their colaborations.
+authors based on their collaborations.
 
 We learned that D3.js is not very performant when dealing with large amounts of data from,
 as a result we needed to reduce the size of data to be displayed, while keeping the interesting parts
@@ -210,7 +210,7 @@ of the network. We reduced the data by clustering authors within a journal and f
 on the density of clusters. Our visualization design went through a few iterations until we ended up on
 something we were happy with. We added summary of journals in our database when no journal is selected and
 an index overview to greet the user with initially. The summary gives an idea what data is available in
-our database to explore. In addition, we made the summary’s bubble chart expand some when a moused over.
+our database to explore. In addition, we made the summary's bubble chart expand some when a moused over.
 Additionally the network of an author's collaboration with others is something we thought would be useful
 to explore, so this view was added as well. This view would help us to discover the possible reasons behind
 their collaborations, such as working at the same university or lab. We also
@@ -233,7 +233,7 @@ the number of papers in the journal. This will let them get a rough overview of 
 what their contents might be like, e.g. old vs. young journals, those with many publications etc. The user
 can then select a journal either by double clicking the node or selecting the journal from the dropdown menu.
 
-![Landing view showing overivew of journals](report_images/landing.png)
+![Landing view showing overview of journals](report_images/landing.png)
 
 When a journal is selected we show a slightly curated network of authors in the journal and group
 those who frequently collaborate into clusters and bundle them as a single node. The curation is done
@@ -273,14 +273,14 @@ who the author collaborated with over time.
 
 ## Evaluation
 
-![sigplan visualization with expanded bundle(left), with closed bundle(right)](report_images/sigplan_bundle.png)
+![SIGPLAN visualization with expanded bundle(left), with closed bundle(right)](report_images/sigplan_bundle.png)
 
-![tist visualization with expanded bundle(left), with closed bundle(right)](report_images/tist_bundle.png)
+![TIST visualization with expanded bundle(left), with closed bundle(right)](report_images/tist_bundle.png)
 
 One of the things we were worried about when coming up with this visualization was that dense clusters would always refer
 to articles with many authors. It turned out that this behavior was common in our final visualization (although we believe that 
 this could still be solved with more advanced clustering methods), however, the surprising result was that this wasn't necessarily
-a bad thing. simplifying these dense clusters resulting from articles with many authors still get's rid of visual noise, and the
+a bad thing. simplifying these dense clusters resulting from articles with many authors still gets rid of visual noise, and the
 edge aggregation also reveals interesting results. In the first image above for instance, you can see that closed bundle visualization
 is cleaner while also communicating that there are a lot of collaborations between the blue and red bundles.
 
