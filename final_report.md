@@ -277,9 +277,13 @@ to articles with many authors. It turned out that this behavior was common in ou
 this could still be solved with more advanced clustering methods). However this wasn't necessarily
 a bad thing which was surprising. Simplifying these dense clusters resulting from articles with many authors still gets rid of visual noise, and the
 edge aggregation also reveals interesting results. In Fig. \ref{tist_bundle} for instance, you can see that closed bundle visualization
-is cleaner while also communicating that there are a lot of collaborations between the blue and red bundles.
+is cleaner while also communicating that there are a lot of collaborations between the blue and red bundles. There is a bug that we weren't able to fix in time is the displlay of edges would change back to defaut width's size when panning the view. 
 
 The brushing functionality could be better, especially if we recomputed clusters on the fly for the filtered
 dataset. This would allow for better exploration of subsets of the whole data which might be interesting to
 explore as well.
+
+There are a couple additional features that would be nice to have such as hightlight the node when 
+mouse is over on an author in the side bar and hightlight the year in the histogram and authors' node 
+when mouse is over an article in the side bar. This would make the visualization even more connected. 
 
