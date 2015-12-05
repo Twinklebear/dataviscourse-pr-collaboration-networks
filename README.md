@@ -2,7 +2,7 @@
 
 Authors: Kevin Wall, Mike Liu, Will Usher
 
-# Process Book
+# Final Submission
 
 Our final documents are listed below
 
@@ -15,6 +15,9 @@ is also available from the website.
 
 Under the `js/` folder is all of our Javascript for the visualization in D3. Under the `processing/` folder
 are a few Python scripts we wrote for selecting, cleaning up and clustering entries from the DBLP database.
+
+We make use of [d3.loadData](https://groups.google.com/forum/#!topic/d3-js/3hHke9ZKfQM) for asynchronously
+loading multiple data files at once. This library is located under [`js/loadData.js`](js/loadData.js).
 
 # Project Milestone
 
