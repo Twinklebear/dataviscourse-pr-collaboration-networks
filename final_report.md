@@ -2,7 +2,7 @@
 
 Authors: Kevin Wall, Mike Liu, Will Usher
 
-## Timeline - may get integrated into process book section 
+## Timeline
 
 ### Brainstorming
 
@@ -59,7 +59,6 @@ object-oriented model of Journals, Articles, and Authors. This made further anal
 we could simply access lists of class instances with useful per-instance information such as links to other instances.
 In addition, once we had a standard representation, it enabled better work parallelization.
 
-[picture]
 After looking at various datasets and online publication libraries and applying our own biases towards certain journals,
 we settled on looking at journals that were published by ACM and hosted on the
 [digital library](http://dl.acm.org/) and published by IEEE where we could use their API to get affiliation 
@@ -77,6 +76,7 @@ data, including information we computed offline, to the Javascript that actually
 This meant creating a new script that did essentially the same thing as the DBLP to gml script, but instead outputted JSON files. Now, finally, we could begin development of the visualization itself. 
 
 ![Test graph](report_images/graph_small.png)
+
 Meanwhile, we were also developing a method of finding dense subgraphs within the networks we were generating. After doing
 some research, we found a approximate algorithm for finding dense subgraphs whose time complexity was linear [citation].
 We implemented this, and were able to begin generating JSON files that described clusters in the data.
@@ -103,7 +103,7 @@ a large number of loosely connected nodes. After analyzing the results and the i
 algorithm was running into situation where the cluster we were looking for were narrowly losing to large collections of
 several clusters (in terms of density), especially when dealing with low densities. Our solution was to increase our minimum
 density requirements and to implement a special subgraph selection step that prefers smaller clusters if there exists close
-alternatives. You can see all this in the image above; on the left you see the system attempting to bundle several disconnected
+alternatives. You can see all this in figure 11; on the left you see the system attempting to bundle several disconnected
 clusters. On the right, the clusters now get their own bundles and more accurately reflect the structure of the graph. 
 
 [TODO MIKE: MORE discussion of final development of visualization]
@@ -129,17 +129,11 @@ represent them. Matrices provide a compact and informative way of communicating 
 by aggregating the connections flowing out of the subgraph, the resulting node-edge diagrams is much more visually
 manageable. 
 
-[other works?]
-
 ## Questions
 
 The main question we wanted to answer is whether dense subgraphs could be specially visualized to make the overall graph
 more readable while maintaining the language of nodes and edges, both macroscopically (in terms of the whole graph), and
 microscopically (in terms of the dense subgraph itself). 
-
-[any other questions]
-
-[how did this question evolve and what new questions came up]
 
 ## Data
 
@@ -178,9 +172,9 @@ our data a acquisition and methods themselves.
 
 ## Design Evolution
 
-![First design concept](report_images/visualization_design_concept1.png)
+![First design concept](report_images/visualization_design_concept1.png) 
 
-Before we had decided fully on networks, we created a initial concept of how we could visualize one. In the above image, you can see
+Before we had decided fully on networks, we created a initial concept of how we could visualize one. In figure 16, you can see
 our ideas beginning to take shape. Large-scale known grouping information is visualized as large dotted circles or tightly fitting shapes
 (We used both in order to compare the different methods). Clusters are grouped using solid black circles and the internal edges are
 not rendered (this doesn't show in most clusters because this visualization was only intended to get ideas across). When a node is selected, edges are shown (if hidden)
@@ -281,7 +275,7 @@ One of the things we were worried about when coming up with this visualization w
 to articles with many authors. It turned out that this behavior was common in our final visualization (although we believe that 
 this could still be solved with more advanced clustering methods). However this wasn't necessarily
 a bad thing which was surprising. Simplifying these dense clusters resulting from articles with many authors still gets rid of visual noise, and the
-edge aggregation also reveals interesting results. In the first image above for instance, you can see the closed bundle visualization
+edge aggregation also reveals interesting results. In figure 22 for instance, you can see that closed bundle visualization
 is cleaner while also communicating that there are a lot of collaborations between the blue and red bundles.
 
 The brushing functionality could be better, especially if we recomputed clusters on the fly for the filtered
