@@ -10,9 +10,9 @@ Authors: Kevin Wall, Mike Liu, Will Usher
 
 ![Dense subgraphs are replaced with small matrices](report_images/nodetrix1.png) 
 
-[citation]
 Early in the semester, Jean-Daniel Fekete gave a talk at the SCI institute on visualizing graphs using matrices 
-in a method called NodeTrix, introduced in a paper he coauthored. This gave us the idea to use hierarchical nodes
+in a method called [NodeTrix](http://research.microsoft.com/en-us/um/people/nath/docs/Henry_infovis07.pdf),
+introduced in a paper he coauthored. This gave us the idea to use hierarchical nodes
 to represent dense subgraphs instead of small matrices. 
 
 ![Coauthorship network of scientists in field of network science](report_images/netscience.png) 
@@ -26,9 +26,9 @@ the graph itself and not telling much about the nodes.
 After talking with the instructor, we were put on the trail of dblp, which is a large database of research journals,
 articles, and authors. We decided we could make use this data to generate collaboration networks.
 
-### Project Proposal
+### Proposal and Milestone Report
 
-[project proposal document]
+Our project proposal and milestone report are attached at the end of the PDF
 
 ### Early Work
 
@@ -83,10 +83,6 @@ We implemented this, and were able to begin generating json files that described
 
 [discussion of early development of visualization]
 
-### Milestone Report
-
-[milestone report document]
-
 ### Final Work
 
 ![Sigplan collaboration network with curated subgraph circled in red](report_images/sigplan_curated.png)
@@ -128,7 +124,7 @@ and edges.
 
 ## Related Work
 
-Our work is most influenced by NodeTrix, which presents a method of managing dense subgraphs by using small matrices to
+Our work is most influenced by [NodeTrix](http://research.microsoft.com/en-us/um/people/nath/docs/Henry_infovis07.pdf), which presents a method of managing dense subgraphs by using small matrices to
 represent them. Matrices provide a compact and informative way of communicating the connections in a dense subgraph, and
 by aggregating the connections flowing out of the subgraph, the resulting node-edge diagrams is much more visually
 manageable. 
@@ -189,8 +185,38 @@ our ideas beginning to take shape. Large-scale known grouping information is vis
 (We used both in order to compare the different methods). Clusters are grouped using solid black circles and the internal edges are
 not rendered (this doesn't show in most clusters because this visualization was only intended to get ideas across). When a node is selected, edges are shown (if hidden)
 and highlighted using red if the edges leave a cluster, and yellow if they are internal. 
-[discussion]
-We have discussed many different ideas on how we could visualize the graph data that would help us discover interesting information amount the publication dataset. We all have experienced reading and searching publications on our own. We all have different options on what might be useful as shown in several images in previous sections. We used Gephi to help us validate some ideas and came to a hierarchy network graph could be an intuitive way to discover insights behind how students, researchers and scientists publish their findings. We were considering an option of using bubble chart library, but we found the library was very buggy and would require unknown amount of time to try to fix it. We later discovered some D3.js examples contain parts of components that we are looking for our visualization. We implemented those examples, convex hulls, force-directed graph, and bundle nodes, with our data to verify our concept. Convex hulls were useful for showing nodes in clusters, but not really good at displaying the network of the data. Force-directed graph was good for showing both cluster and network of the data, but it don’t help to simplify a hierarchical network graph data. Overall, we found that bundle nodes would be a good way of interacting with our data. It is not only showing how authors are grouped, but also present the network of authors based on their publications’ record. We learned that D3.js is not very good at handling large amount of data from the performance side. Therefore, we needed to reduce the size of data to be displayed, but keep the interesting information at the same time and still give an option for users to visualize the whole data. We decided to only show the network within each publication at a time. We preprocessed the data by grouping them based on the journal type and by clustering authors within a journal and filtering display nodes based on the density of clusters.  After reorganizing data, we crawl information that we thought would be useful to have in our visualization tool from each publication website. We had to change the data structure, the way how we store data, a couple times in order to improve the performance of our tool. Once we were able to display these data in our tool, we went through a couple iterations on the design of user interface. We added summary of data when no journal is selected. The summary gives an idea what data is available in our database. In addition, we made the summary’s bubble chart expend a little when a mouse over a chart. Network of an author’s collaboration is another thing that we thought would be useful to look at an author’s immediate collaborators based on the publications. It would help us to discover the possible reasons behind their collaborations. It would be that they were at the same university or some other reasons. We also make our side bar where it displays all the available publications based on each user’s filter to be more interactive that user can make their discovery much faster. 
+
+We discussed many different ideas on how to visualize the graph data that would help us discover
+interesting information amount the collaborations in the dataset. We had a few different ideas on what
+method of visualizing the data would be most useful.
+We used Gephi to help us validate some ideas and settled on a hierarchy network graph could be
+an intuitive way to discover insights behind how researchers collaborated and published their findings.
+
+We were considering using a bubble chart library but found the library was pretty buggy 
+and would require too much time to fix it. Later we found some D3.js examples with parts of components
+that we are looking at for our visualization like convex hulls (to show grouping of nodes),
+force--directed graphs, and bundling nodes (to show/hide dense clusters).
+
+Convex hulls were useful for showing nodes in clusters, but not that good at displaying the network of the data.
+A force--directed graph was good for showing both clusters and the network but it don’t help to 
+simplify a hierarchical network graph data. Overall, we found that bundle nodes would be a good way of
+interacting with our data. It is not only showing how authors are grouped, but also present the network of
+authors based on their publications’ record. We learned that D3.js is not very good at handling large amount
+of data from the performance side. Therefore, we needed to reduce the size of data to be displayed, but keep
+the interesting information at the same time and still give an option for users to visualize the whole data.
+We decided to only show the network within each publication at a time. We preprocessed the data by grouping
+them based on the journal type and by clustering authors within a journal and filtering display nodes based
+on the density of clusters.  After reorganizing data, we crawl information that we thought would be useful
+to have in our visualization tool from each publication website. We had to change the data structure,
+the way how we store data, a couple times in order to improve the performance of our tool. Once we were
+able to display these data in our tool, we went through a couple iterations on the design of user interface.
+We added summary of data when no journal is selected. The summary gives an idea what data is available in
+our database. In addition, we made the summary’s bubble chart expend a little when a mouse over a chart.
+Network of an author’s collaboration is another thing that we thought would be useful to look at an author’s
+immediate collaborators based on the publications. It would help us to discover the possible reasons behind
+their collaborations. It would be that they were at the same university or some other reasons. We also
+make our side bar where it displays all the available publications based on each user’s filter to be
+more interactive that user can make their discovery much faster. 
 
 ## Implementation
 
