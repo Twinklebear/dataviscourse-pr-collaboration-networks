@@ -1,4 +1,7 @@
-// TODO: Take journals, clusters, authors as params
+// This is built off of a combination of
+// Convex hulls: http://bl.ocks.org/donaldh/2920551
+// Force directed graph: http://bl.ocks.org/mbostock/4062045
+// Bundle nodes: http://bl.ocks.org/GerHobbelt/3071239
 var MainView = function(event_handler){
 	// TODO: Emit an author selected event when an author is clicked.
 	// Setup ourself to listen for events we want
