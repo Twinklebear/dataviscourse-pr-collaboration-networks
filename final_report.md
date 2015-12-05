@@ -10,9 +10,9 @@ Authors: Kevin Wall, Mike Liu, Will Usher
 
 ![Dense subgraphs are replaced with small matrices](report_images/nodetrix1.png) 
 
-[citation]
 Early in the semester, Jean-Daniel Fekete gave a talk at the SCI institute on visualizing graphs using matrices 
-in a method called NodeTrix, introduced in a paper he coauthored. This gave us the idea to use hierarchical nodes
+in a method called [NodeTrix](http://research.microsoft.com/en-us/um/people/nath/docs/Henry_infovis07.pdf),
+introduced in a paper he coauthored. This gave us the idea to use hierarchical nodes
 to represent dense subgraphs instead of small matrices. 
 
 ![Coauthorship network of scientists in field of network science](report_images/netscience.png) 
@@ -26,9 +26,9 @@ the graph itself and not telling much about the nodes.
 After talking with the instructor, we were put on the trail of dblp, which is a large database of research journals,
 articles, and authors. We decided we could make use this data to generate collaboration networks.
 
-### Project Proposal
+### Proposal and Milestone Report
 
-[project proposal document]
+Our project proposal and milestone report are attached at the end of the PDF
 
 ### Early Work
 
@@ -82,10 +82,6 @@ We implemented this, and were able to begin generating json files that described
 
 [discussion of early development of visualization]
 
-### Milestone Report
-
-[milestone report document]
-
 ### Final Work
 
 ![Sigplan collaboration network with curated subgraph circled in red](report_images/sigplan_curated.png)
@@ -127,7 +123,7 @@ and edges.
 
 ## Related Work
 
-Our work is most influenced by NodeTrix, which presents a method of managing dense subgraphs by using small matrices to
+Our work is most influenced by [NodeTrix](http://research.microsoft.com/en-us/um/people/nath/docs/Henry_infovis07.pdf), which presents a method of managing dense subgraphs by using small matrices to
 represent them. Matrices provide a compact and informative way of communicating the connections in a dense subgraph, and
 by aggregating the connections flowing out of the subgraph, the resulting node-edge diagrams is much more visually
 manageable. 
