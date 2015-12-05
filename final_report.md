@@ -276,7 +276,7 @@ One of the things we were worried about when coming up with this visualization w
 to articles with many authors. It turned out that this behavior was common in our final visualization (although we believe that 
 this could still be solved with more advanced clustering methods). However this wasn't necessarily
 a bad thing which was surprising. Simplifying these dense clusters resulting from articles with many authors still gets rid of visual noise, and the
-edge aggregation also reveals interesting results. In Fig. \ref{fig:tist_bundle} for instance, you can see that closed bundle visualization
+edge aggregation also reveals interesting results. In Fig. \ref{tist_bundle} for instance, you can see that closed bundle visualization
 is cleaner while also communicating that there are a lot of collaborations between the blue and red bundles.
 
 The brushing functionality could be better, especially if we recomputed clusters on the fly for the filtered
